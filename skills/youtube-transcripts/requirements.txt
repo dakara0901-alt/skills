@@ -1,0 +1,4 @@
+yt-dlp>=2024.1.0
+
+# Optional: only needed for the --whisper audio-transcription fallback
+# openai-whisper>=20231117
