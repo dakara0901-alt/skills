@@ -55,11 +55,28 @@ def list_videos(url: str, limit: int | None) -> list[dict]:
     if limit:
         cmd[1:1] = ["-I", f"1:{limit}"]
     proc = subprocess.run(cmd, capture_output=True, text=True)
-    if not proc.stdout.strip():
+
+    def _fail() -> None:
         eprint("ERROR: could not list videos.")
-        eprint(proc.stderr.strip()[-1000:])
+        err = proc.stderr.strip()
+        if "403" in err or "Forbidden" in err or "Unable to connect to proxy" in err:
+            eprint(
+                "  This looks like blocked network access to YouTube. Some "
+                "sandboxed environments\n  (e.g. Claude Code web sessions) block "
+                "YouTube. Run this on a machine with\n  normal internet access."
+            )
+        if err:
+            eprint(err[-1000:])
         sys.exit(1)
-    data = json.loads(proc.stdout)
+
+    try:
+        data = json.loads(proc.stdout) if proc.stdout.strip() else None
+    except json.JSONDecodeError:
+        data = None
+    # yt-dlp --ignore-errors prints `null` (-> None) to stdout when it can't
+    # reach the URL, with the real reason on stderr.
+    if not isinstance(data, dict):
+        _fail()
     entries = data.get("entries")
     if entries is None:  # single video URL
         entries = [data]
