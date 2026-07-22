@@ -21,6 +21,9 @@ For each video the bundled script `scripts/youtube_transcripts.py`:
 It writes one `.txt` per video, a combined `context.md`, and an `index.json`
 manifest.
 
+> A step-by-step Japanese guide for running this on a local Mac/Windows machine
+> is in [`USAGE_ja.md`](USAGE_ja.md).
+
 ## Requirements & network access
 
 - **`yt-dlp`** is required: `pip install -U yt-dlp`
