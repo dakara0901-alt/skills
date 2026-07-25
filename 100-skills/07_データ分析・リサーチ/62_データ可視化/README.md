@@ -1,0 +1,27 @@
+# 62. データ可視化
+
+> カテゴリ: 📊 07_データ分析・リサーチ　｜　スキルNo. 62/100
+
+## 📌 概要
+データを適切なグラフで可視化し、意思決定を促す。
+
+## 🌍 世界最高峰のツール・手法
+- Looker Studio / Power BI / Tableau
+- Flourish
+- Observable Plot / D3
+- グラフ選択の原則
+
+## 🛠 実践ステップ
+1. 伝えたい問い(比較/推移/割合)を定義
+2. データに合うグラフ種を選ぶ
+3. 色・軸・ラベルで誤読を防ぐ
+4. 不要な装飾を削ぎ本質を強調
+5. ダッシュボードで継続監視
+
+## 📚 厳選リソース
+- 『Storytelling with Data』
+- Looker Studio / Power BI公式
+- Financial Times Visual Vocabulary
+
+---
+*「使える最高のスキル100」コレクション ｜ [全体インデックス](../../README.md) ｜ [カテゴリ index](../README.md)*
