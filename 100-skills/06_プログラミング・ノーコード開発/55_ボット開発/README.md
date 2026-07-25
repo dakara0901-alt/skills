@@ -1,9 +1,10 @@
-# 55. ボット開発
+# 💻 55. ボット開発
 
-> カテゴリ: 💻 06_プログラミング・ノーコード開発　｜　スキルNo. 55/100
+`💻 06_プログラミング・ノーコード開発` ｜ `スキル 55 / 100`
 
-## 📌 概要
-Slack/Discord/LINE botで通知・自動応答・業務連携を実装する。
+> Slack/Discord/LINE botで通知・自動応答・業務連携を実装する。
+
+<br>
 
 ## 🌍 世界最高峰のツール・手法
 - Slack Bolt / Discord.js
@@ -23,5 +24,11 @@ Slack/Discord/LINE botで通知・自動応答・業務連携を実装する。
 - discord.js Guide
 - LINE Developers公式
 
+<br>
+
 ---
-*「使える最高のスキル100」コレクション ｜ [全体インデックス](../../README.md) ｜ [カテゴリ index](../README.md)*
+<div align="center">
+
+[⬆️ カテゴリ一覧](../README.md)　｜　[🏠 全体インデックス](../../README.md)
+
+</div>

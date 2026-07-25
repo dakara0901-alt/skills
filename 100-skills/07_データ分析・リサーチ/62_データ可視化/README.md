@@ -1,9 +1,10 @@
-# 62. データ可視化
+# 📊 62. データ可視化
 
-> カテゴリ: 📊 07_データ分析・リサーチ　｜　スキルNo. 62/100
+`📊 07_データ分析・リサーチ` ｜ `スキル 62 / 100`
 
-## 📌 概要
-データを適切なグラフで可視化し、意思決定を促す。
+> データを適切なグラフで可視化し、意思決定を促す。
+
+<br>
 
 ## 🌍 世界最高峰のツール・手法
 - Looker Studio / Power BI / Tableau
@@ -23,5 +24,11 @@
 - Looker Studio / Power BI公式
 - Financial Times Visual Vocabulary
 
+<br>
+
 ---
-*「使える最高のスキル100」コレクション ｜ [全体インデックス](../../README.md) ｜ [カテゴリ index](../README.md)*
+<div align="center">
+
+[⬆️ カテゴリ一覧](../README.md)　｜　[🏠 全体インデックス](../../README.md)
+
+</div>
