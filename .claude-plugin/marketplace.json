@@ -15,10 +15,10 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/xlsx",
-        "./skills/docx",
-        "./skills/pptx",
-        "./skills/pdf"
+        "./skills/documents/xlsx",
+        "./skills/documents/docx",
+        "./skills/documents/pptx",
+        "./skills/documents/pdf"
       ]
     },
     {
@@ -27,18 +27,18 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/algorithmic-art",
-        "./skills/brand-guidelines",
-        "./skills/canvas-design",
-        "./skills/doc-coauthoring",
-        "./skills/frontend-design",
-        "./skills/internal-comms",
-        "./skills/mcp-builder",
-        "./skills/skill-creator",
-        "./skills/slack-gif-creator",
-        "./skills/theme-factory",
-        "./skills/web-artifacts-builder",
-        "./skills/webapp-testing"
+        "./skills/creative-design/algorithmic-art",
+        "./skills/creative-design/brand-guidelines",
+        "./skills/creative-design/canvas-design",
+        "./skills/writing-communication/doc-coauthoring",
+        "./skills/creative-design/frontend-design",
+        "./skills/writing-communication/internal-comms",
+        "./skills/development/mcp-builder",
+        "./skills/development/skill-creator",
+        "./skills/creative-design/slack-gif-creator",
+        "./skills/creative-design/theme-factory",
+        "./skills/development/web-artifacts-builder",
+        "./skills/development/webapp-testing"
       ]
     }
     ,
@@ -48,7 +48,7 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/claude-api"
+        "./skills/development/claude-api"
       ]
     }
   ]
