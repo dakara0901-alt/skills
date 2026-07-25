@@ -1,0 +1,2711 @@
+
+<style>
+  :root{
+    --bg:#f4f6f6; --surface:#ffffff; --surface-2:#fafbfb;
+    --border:#e0e5e5; --text:#191c1c; --muted:#5c6564;
+    --accent:#0f7a78; --accent-ink:#0b5250;
+    --shadow:0 1px 2px rgba(20,30,30,.05),0 8px 24px -12px rgba(20,40,40,.14);
+    --radius:14px;
+    --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","YuGothic","Noto Sans JP",Meiryo,system-ui,sans-serif;
+    --mono:"SFMono-Regular",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0d1211; --surface:#151b1a; --surface-2:#111716;
+      --border:#26302e; --text:#e8eceb; --muted:#95a09e;
+      --accent:#31b0ad; --accent-ink:#8fe0dd;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f6; --surface:#ffffff; --surface-2:#fafbfb;
+    --border:#e0e5e5; --text:#191c1c; --muted:#5c6564;
+    --accent:#0f7a78; --accent-ink:#0b5250;
+    --shadow:0 1px 2px rgba(20,30,30,.05),0 8px 24px -12px rgba(20,40,40,.14);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1211; --surface:#151b1a; --surface-2:#111716;
+    --border:#26302e; --text:#e8eceb; --muted:#95a09e;
+    --accent:#31b0ad; --accent-ink:#8fe0dd;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+       line-height:1.6;-webkit-font-smoothing:antialiased;font-feature-settings:"palt" 1;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px;}
+
+  /* Header */
+  .masthead{padding:44px 0 22px;border-bottom:1px solid var(--border);margin-bottom:0;}
+  .kicker{font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-ink);
+          font-weight:700;margin:0 0 10px;}
+  h1.title{font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.1;margin:0 0 12px;font-weight:800;
+           letter-spacing:-.01em;text-wrap:balance;}
+  .lede{font-size:1.02rem;color:var(--muted);margin:0;max-width:60ch;}
+  .stats{display:flex;gap:26px;margin-top:20px;flex-wrap:wrap;}
+  .stat{display:flex;align-items:baseline;gap:7px;}
+  .stat b{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);}
+  .stat span{font-size:.82rem;color:var(--muted);}
+
+  /* Sticky controls */
+  .controls{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);
+            backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+            padding:14px 0 12px;border-bottom:1px solid var(--border);margin-bottom:26px;}
+  .search-row{display:flex;gap:12px;align-items:center;margin-bottom:12px;}
+  .search{flex:1;position:relative;}
+  .search input{width:100%;padding:11px 14px 11px 40px;border:1px solid var(--border);
+                border-radius:10px;background:var(--surface);color:var(--text);font:inherit;font-size:.95rem;}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent;}
+  .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;
+              stroke:var(--muted);fill:none;stroke-width:2;}
+  .count{font-size:.85rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .count b{color:var(--text);font-weight:700;}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{--h:180;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;
+        border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;
+        font-size:.82rem;font-weight:600;cursor:pointer;transition:transform .08s,border-color .15s,background .15s;}
+  .chip:hover{transform:translateY(-1px);border-color:hsl(var(--h) 45% 55%);}
+  .chip .chip-e{font-size:.95rem;}
+  .chip .chip-n{font-size:.7rem;color:var(--muted);font-variant-numeric:tabular-nums;
+                background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:0 6px;}
+  .chip.is-active{background:hsl(var(--h) 60% 94%);border-color:hsl(var(--h) 50% 55%);
+                  color:hsl(var(--h) 55% 26%);}
+  .chip[data-cat="all"].is-active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .chip[data-cat="all"].is-active .chip-n{background:rgba(255,255,255,.22);border-color:transparent;color:#fff;}
+  @media (prefers-color-scheme:dark){
+    .chip.is-active{background:hsl(var(--h) 42% 18%);border-color:hsl(var(--h) 50% 45%);color:hsl(var(--h) 70% 78%);}
+  }
+  :root[data-theme="dark"] .chip.is-active{background:hsl(var(--h) 42% 18%);border-color:hsl(var(--h) 50% 45%);color:hsl(var(--h) 70% 78%);}
+  :root[data-theme="light"] .chip.is-active{background:hsl(var(--h) 60% 94%);border-color:hsl(var(--h) 50% 55%);color:hsl(var(--h) 55% 26%);}
+
+  /* Cards grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+  .card{--h:180;position:relative;background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius);padding:18px 18px 16px;box-shadow:var(--shadow);
+        border-top:3px solid hsl(var(--h) 60% 50%);display:flex;flex-direction:column;}
+  .card.hide{display:none;}
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+  .num{font-family:var(--mono);font-size:.82rem;font-weight:700;color:hsl(var(--h) 45% 45%);
+       font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+  @media (prefers-color-scheme:dark){.num{color:hsl(var(--h) 55% 68%);}}
+  :root[data-theme="dark"] .num{color:hsl(var(--h) 55% 68%);}
+  :root[data-theme="light"] .num{color:hsl(var(--h) 45% 45%);}
+  .cat-chip{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;
+            color:var(--muted);padding:3px 8px;border-radius:999px;background:var(--surface-2);
+            border:1px solid var(--border);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .cat-e{font-size:.85rem;}
+  .card-title{font-size:1.08rem;font-weight:800;margin:0 0 6px;line-height:1.3;letter-spacing:-.005em;}
+  .card-overview{font-size:.9rem;color:var(--muted);margin:0 0 12px;flex:1;}
+  details.card-more{margin-top:auto;border-top:1px dashed var(--border);padding-top:10px;}
+  summary{cursor:pointer;list-style:none;font-size:.85rem;font-weight:700;color:var(--accent-ink);
+          display:inline-flex;align-items:center;gap:6px;user-select:none;}
+  summary::-webkit-details-marker{display:none;}
+  summary::before{content:"›";font-size:1.1rem;line-height:1;transition:transform .18s;display:inline-block;}
+  details[open] summary::before{transform:rotate(90deg);}
+  .summary-close{display:none;} details[open] .summary-open{display:none;} details[open] .summary-close{display:inline;}
+  .detail{padding-top:12px;display:flex;flex-direction:column;gap:14px;}
+  .block h4{font-size:.8rem;margin:0 0 6px;font-weight:700;letter-spacing:.01em;}
+  .block ul,.block ol{margin:0;padding-left:1.25em;font-size:.85rem;color:var(--text);}
+  .block li{margin:3px 0;}
+  .block ul{list-style:disc;} .block ol{list-style:decimal;}
+
+  .empty{display:none;text-align:center;padding:60px 20px;color:var(--muted);}
+  .empty.show{display:block;}
+
+  footer{margin-top:40px;padding-top:22px;border-top:1px solid var(--border);
+         color:var(--muted);font-size:.82rem;text-align:center;line-height:1.7;}
+
+  @media (max-width:560px){
+    .grid{grid-template-columns:1fr;}
+    .search-row{flex-direction:column;align-items:stretch;}
+    .count{align-self:flex-end;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="kicker">世界最高のスキル・コレクション</p>
+    <h1 class="title">🏆 使える最高のスキル100</h1>
+    <p class="lede">世界中から集めた「一人で問題解決し、AIをレバレッジして稼ぐ」ための実用スキル。10カテゴリ・100項目を、ツール・実践ステップ・厳選リソース付きで収録。</p>
+    <div class="stats">
+      <div class="stat"><b>10</b><span>カテゴリ</span></div>
+      <div class="stat"><b>100</b><span>スキル</span></div>
+      <div class="stat"><b>300+</b><span>厳選リソース</span></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search-row">
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input id="q" type="search" placeholder="スキル・ツール名で検索（例: SEO, Claude, 確定申告）" aria-label="スキルを検索">
+      </label>
+      <div class="count"><b id="count-n">100</b> 件を表示</div>
+    </div>
+    <div class="chips">
+      <button class="chip is-active" data-cat="all" aria-pressed="true">すべて<span class="chip-n">100</span></button>
+      <button class="chip" data-cat="01" style="--h:262" aria-pressed="false"><span class="chip-e">🤖</span>AI活用・自動化<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="02" style="--h:24" aria-pressed="false"><span class="chip-e">✍️</span>ライティング・コンテンツ制作<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="03" style="--h:330" aria-pressed="false"><span class="chip-e">🎨</span>デザイン・ビジュアル<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="04" style="--h:4" aria-pressed="false"><span class="chip-e">📣</span>マーケティング・集客<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="05" style="--h:200" aria-pressed="false"><span class="chip-e">🤝</span>セールス・交渉<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="06" style="--h:222" aria-pressed="false"><span class="chip-e">💻</span>プログラミング・ノーコード開発<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="07" style="--h:158" aria-pressed="false"><span class="chip-e">📊</span>データ分析・リサーチ<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="08" style="--h:42" aria-pressed="false"><span class="chip-e">💰</span>財務・会計・税務<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="09" style="--h:285" aria-pressed="false"><span class="chip-e">⚖️</span>法務・契約<span class="chip-n">10</span></button>
+      <button class="chip" data-cat="10" style="--h:174" aria-pressed="false"><span class="chip-e">🚀</span>生産性・自己管理<span class="chip-n">10</span></button>
+    </div>
+  </div>
+
+  <main>
+    <div class="grid">
+      <article class="card" style="--h:262" data-cat="01" data-search="プロンプトエンジニアリング aiから最大の成果を引き出す指示設計。役割・文脈・制約・出力形式を構造化して伝える技術。 anthropic claude（長文・推論に最強） openai gpt-5 / o系（汎用・ツール利用） google ai studio（無料で高速検証） prompthub / langsmith（プロンプト管理・評価） ai活用・自動化">
+        <header class="card-head">
+          <span class="num">01</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">プロンプトエンジニアリング</h3>
+        <p class="card-overview">AIから最大の成果を引き出す指示設計。役割・文脈・制約・出力形式を構造化して伝える技術。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Anthropic Claude（長文・推論に最強）</li><li>OpenAI GPT-5 / o系（汎用・ツール利用）</li><li>Google AI Studio（無料で高速検証）</li><li>PromptHub / LangSmith（プロンプト管理・評価）</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>役割(Role)・文脈(Context)・タスク・制約・出力形式の5要素で組む</li><li>少数例(Few-shot)で望む出力を実例提示</li><li>思考の連鎖(Chain-of-Thought)で推論を明示させる</li><li>出力をXML/JSONタグで構造化し後工程で機械処理</li><li>評価データで反復改善しテンプレ化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Anthropic Prompt Engineering Guide (docs.claude.com)</li><li>OpenAI Prompting Guide</li><li>learnprompting.org（無料の体系教材）</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="ノーコード自動化 コードを書かずにアプリ間のワークフローを自動化し、定型作業をゼロにする。 make（旧integromat・複雑分岐に強い/安価） zapier（連携数no.1・最も安定） n8n（オープンソース・自己ホスト可） pipedream（開発者向け・コード併用） ai活用・自動化">
+        <header class="card-head">
+          <span class="num">02</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">ノーコード自動化</h3>
+        <p class="card-overview">コードを書かずにアプリ間のワークフローを自動化し、定型作業をゼロにする。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Make（旧Integromat・複雑分岐に強い/安価）</li><li>Zapier（連携数No.1・最も安定）</li><li>n8n（オープンソース・自己ホスト可）</li><li>Pipedream（開発者向け・コード併用）</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>自動化したい定型作業を棚卸ししROIの高い順に並べる</li><li>トリガー→アクションの単純フローから作る</li><li>分岐・フィルター・エラーハンドリングを追加</li><li>実行ログを監視し失敗通知をSlack等へ</li><li>月次でシナリオを見直し統廃合</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Make Academy（公式無料講座）</li><li>Zapier University</li><li>n8n公式ドキュメント・コミュニティ</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="aiエージェント構築 自律的にツールを使って多段タスクをこなすカスタムaiアシスタントを作る。 claude agent sdk（本番運用向け） openai agents sdk / assistants langgraph（状態管理・複雑ワークフロー） dify / flowise（guiでエージェント構築） ai活用・自動化">
+        <header class="card-head">
+          <span class="num">03</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">AIエージェント構築</h3>
+        <p class="card-overview">自律的にツールを使って多段タスクをこなすカスタムAIアシスタントを作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Claude Agent SDK（本番運用向け）</li><li>OpenAI Agents SDK / Assistants</li><li>LangGraph（状態管理・複雑ワークフロー）</li><li>Dify / Flowise（GUIでエージェント構築）</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>解決したい業務のゴールと成功指標を定義</li><li>必要なツール(検索/DB/API)を洗い出し接続</li><li>システムプロンプトで役割と手順を設計</li><li>評価セットで精度・コスト・レイテンシを測定</li><li>ガードレールとログを入れて本番投入</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Anthropic『Building effective agents』</li><li>LangGraph公式チュートリアル</li><li>Dify公式ドキュメント</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="rpa（定型作業自動化） 画面操作やファイル処理などpc上の反復作業をロボットで自動実行する。 uipath（エンタープライズ標準） power automate desktop（windows無料） playwright（ブラウザ自動操作・開発者向け） robocorp / rpaframework（pythonベース） ai活用・自動化">
+        <header class="card-head">
+          <span class="num">04</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">RPA（定型作業自動化）</h3>
+        <p class="card-overview">画面操作やファイル処理などPC上の反復作業をロボットで自動実行する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>UiPath（エンタープライズ標準）</li><li>Power Automate Desktop（Windows無料）</li><li>Playwright（ブラウザ自動操作・開発者向け）</li><li>Robocorp / rpaframework（Pythonベース）</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>対象業務を録画・観察して手順を分解</li><li>例外パターン(ポップアップ等)を洗い出す</li><li>セレクタ/座標で堅牢に要素を指定</li><li>無人実行スケジュールとリトライを設定</li><li>月次で対象拡大とメンテ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Power Automate Desktop公式ラーニング</li><li>UiPath Academy（無料認定講座）</li><li>Playwright公式ドキュメント</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="データスクレイピング web上の公開情報を自動収集し構造化データに変換する。利用規約とrobots.txtを厳守。 playwright / puppeteer（js描画サイト対応） scrapy（大規模クローリング） beautifulsoup + requests（軽量） apify / bright data（マネージド収集） ai活用・自動化">
+        <header class="card-head">
+          <span class="num">05</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">データスクレイピング</h3>
+        <p class="card-overview">Web上の公開情報を自動収集し構造化データに変換する。利用規約とrobots.txtを厳守。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Playwright / Puppeteer（JS描画サイト対応）</li><li>Scrapy（大規模クローリング）</li><li>BeautifulSoup + requests（軽量）</li><li>Apify / Bright Data（マネージド収集）</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>対象サイトの規約・robots.txt・法令を確認</li><li>HTML構造を検証しセレクタを特定</li><li>レート制限・遅延で相手サーバに配慮</li><li>データを正規化しCSV/DBへ保存</li><li>定期実行と差分検知を組む</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Scrapy公式ドキュメント</li><li>Playwright公式ドキュメント</li><li>『Web Scraping with Python』(O&#x27;Reilly)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="api連携 複数のsaas/サービスをapiでつなぎ、データとアクションを自動で流す。 postman（api検証の定番） openapi/swagger（仕様の標準） curl / httpie（cli検証） oauth2 / apiキー（認証設計） ai活用・自動化">
+        <header class="card-head">
+          <span class="num">06</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">API連携</h3>
+        <p class="card-overview">複数のSaaS/サービスをAPIでつなぎ、データとアクションを自動で流す。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Postman（API検証の定番）</li><li>OpenAPI/Swagger（仕様の標準）</li><li>curl / HTTPie（CLI検証）</li><li>OAuth2 / APIキー（認証設計）</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>APIドキュメントで認証方式とエンドポイントを把握</li><li>Postmanで単発リクエストを検証</li><li>レート制限・ページネーション・エラー処理を実装</li><li>Webhookで受動連携も設計</li><li>secrets管理とリトライで堅牢化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Postman Learning Center</li><li>『Web API: The Good Parts』</li><li>各サービスのAPI Reference</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="音声入力ワークフロー 音声→文字起こし→ai整形→アウトプットまでを自動化し、思考速度で成果物を作る。 whisper / whisper.cpp（高精度文字起こし） superwhisper / macwhisper（mac常駐入力） deepgram / assemblyai（api・話者分離） claude/gptで整形・要約 ai活用・自動化">
+        <header class="card-head">
+          <span class="num">07</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">音声入力ワークフロー</h3>
+        <p class="card-overview">音声→文字起こし→AI整形→アウトプットまでを自動化し、思考速度で成果物を作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Whisper / whisper.cpp（高精度文字起こし）</li><li>Superwhisper / MacWhisper（Mac常駐入力）</li><li>Deepgram / AssemblyAI（API・話者分離）</li><li>Claude/GPTで整形・要約</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>録音/口述デバイスと文字起こしエンジンを選定</li><li>話者分離・タイムスタンプの要否を決める</li><li>文字起こし→AIで整形するプロンプトを定型化</li><li>議事録/記事/タスクへ自動振り分け</li><li>ショートカット化して即起動</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>OpenAI Whisper（GitHub）</li><li>Deepgram公式ドキュメント</li><li>Superwhisper公式サイト</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="ai文書要約・整理 大量の文書・会議・論文をaiで要約し、意思決定に使える形へ構造化する。 claude（長文200k+トークンに最適) notebooklm（出典付き・音声要約) notion ai（ドキュメント内要約) perplexity（出典付きリサーチ要約) ai活用・自動化">
+        <header class="card-head">
+          <span class="num">08</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">AI文書要約・整理</h3>
+        <p class="card-overview">大量の文書・会議・論文をAIで要約し、意思決定に使える形へ構造化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Claude（長文200K+トークンに最適)</li><li>NotebookLM（出典付き・音声要約)</li><li>Notion AI（ドキュメント内要約)</li><li>Perplexity（出典付きリサーチ要約)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>入力を用途別に分類(議事録/論文/契約等)</li><li>抽出したい項目をテンプレ化(結論/根拠/ToDo)</li><li>長文はチャンク分割し階層要約</li><li>出典・引用を必ず残す</li><li>要約→アクション変換まで自動化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Google NotebookLM</li><li>Anthropic long-context tips</li><li>Perplexity公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="カスタムgpt/bot作成 特定業務に特化したチャットボットを作り、社内外の問い合わせを自動対応する。 openai gpts / custom gpt claude projects（社内ナレッジ特化） dify / chatbase（rag付きbot） slack/line/discord bot連携 ai活用・自動化">
+        <header class="card-head">
+          <span class="num">09</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">カスタムGPT/Bot作成</h3>
+        <p class="card-overview">特定業務に特化したチャットボットを作り、社内外の問い合わせを自動対応する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>OpenAI GPTs / Custom GPT</li><li>Claude Projects（社内ナレッジ特化）</li><li>Dify / Chatbase（RAG付きBot）</li><li>Slack/LINE/Discord Bot連携</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>対象ユーザーとよくある質問を定義</li><li>ナレッジ(FAQ/ドキュメント)をRAGで接続</li><li>口調・禁止事項をシステムプロンプトで規定</li><li>逃げ道(有人切替)とログを用意</li><li>利用データで継続改善</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>OpenAI GPTs公式ガイド</li><li>Dify公式ドキュメント</li><li>Chatbase公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:262" data-cat="01" data-search="プロンプトライブラリ管理 再利用可能なプロンプトを資産として蓄積・バージョン管理し、チームで再現性を出す。 notion / obsidian（個人ライブラリ) langsmith / promptlayer（評価・履歴) git（バージョン管理) prompthub（共有・テンプレ) ai活用・自動化">
+        <header class="card-head">
+          <span class="num">10</span>
+          <span class="cat-chip"><span class="cat-e">🤖</span>AI活用・自動化</span>
+        </header>
+        <h3 class="card-title">プロンプトライブラリ管理</h3>
+        <p class="card-overview">再利用可能なプロンプトを資産として蓄積・バージョン管理し、チームで再現性を出す。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Notion / Obsidian（個人ライブラリ)</li><li>LangSmith / PromptLayer（評価・履歴)</li><li>Git（バージョン管理)</li><li>PromptHub（共有・テンプレ)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>プロンプトを『目的×入力×出力』でメタ化</li><li>変数化(プレースホルダ)して汎用テンプレに</li><li>評価スコアと更新履歴を残す</li><li>タグ・カテゴリで検索可能に</li><li>チーム共有ルールを定める</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>LangSmith公式ドキュメント</li><li>Anthropic prompt library</li><li>PromptLayer公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="セールスコピーライティング 読み手を行動させる文章術。ベネフィット・証拠・オファー・ctaで購買を後押しする。 pas/aida/pastor等の型 voc(顧客の声)リサーチ hemingway editor（可読性) a/bテストで検証 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">11</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">セールスコピーライティング</h3>
+        <p class="card-overview">読み手を行動させる文章術。ベネフィット・証拠・オファー・CTAで購買を後押しする。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>PAS/AIDA/PASTOR等の型</li><li>VoC(顧客の声)リサーチ</li><li>Hemingway Editor（可読性)</li><li>A/Bテストで検証</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ターゲットの痛み・欲求・反論をリサーチ</li><li>一つの強いベネフィットに絞る</li><li>証拠(実績/レビュー/保証)で信頼構築</li><li>抗いがたいオファーと明確なCTA</li><li>見出しを複数作りA/Bテスト</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『The Copywriter&#x27;s Handbook』(Bob Bly)</li><li>Copyhackers ブログ</li><li>『Building a StoryBrand』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="ブログ/seo記事執筆 検索意図を満たし上位表示される記事を書き、継続的な集客資産を作る。 ahrefs / semrush（キーワード) surfer seo / clearscope（最適化) google search console claude/gptで下書き＋人手で品質担保 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">12</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">ブログ/SEO記事執筆</h3>
+        <p class="card-overview">検索意図を満たし上位表示される記事を書き、継続的な集客資産を作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Ahrefs / SEMrush（キーワード)</li><li>Surfer SEO / Clearscope（最適化)</li><li>Google Search Console</li><li>Claude/GPTで下書き＋人手で品質担保</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>検索意図(情報/取引/案内)を分類</li><li>上位記事を分析し不足トピックを補完</li><li>結論先出し＋見出し構造(H2/H3)を設計</li><li>一次情報・独自見解で差別化</li><li>内部リンク・メタ・構造化データを整備</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Ahrefs Blog / Backlinko</li><li>Google検索セントラル</li><li>『Everybody Writes』(Ann Handley)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="メールマーケティング リストへ価値を届けて関係構築し、開封・クリック・成約を高める文章と設計。 klaviyo / mailchimp / convertkit 件名a/bテスト セグメント配信 ステップメール(自動化) ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">13</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">メールマーケティング</h3>
+        <p class="card-overview">リストへ価値を届けて関係構築し、開封・クリック・成約を高める文章と設計。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Klaviyo / Mailchimp / ConvertKit</li><li>件名A/Bテスト</li><li>セグメント配信</li><li>ステップメール(自動化)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>件名で開封率、本文一つのCTAでクリック率を設計</li><li>セグメントで関連性を最大化</li><li>ウェルカム/カート放棄などシナリオ自動化</li><li>配信時間・頻度を検証</li><li>到達率(認証SPF/DKIM)を確保</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Klaviyo公式ガイド</li><li>Really Good Emails（事例集）</li><li>『Email Marketing Rules』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="台本・シナリオ作成 動画・音声の台本を構成し、最後まで見られる/聴かれるコンテンツを作る。 フック→本編→ctaの3幕構成 ストーリーテリング型 youtube retentionデータ活用 aiで初稿＋人手で語り口調整 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">14</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">台本・シナリオ作成</h3>
+        <p class="card-overview">動画・音声の台本を構成し、最後まで見られる/聴かれるコンテンツを作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>フック→本編→CTAの3幕構成</li><li>ストーリーテリング型</li><li>YouTube Retentionデータ活用</li><li>AIで初稿＋人手で語り口調整</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>最初の3秒で視聴理由(フック)を提示</li><li>1動画1メッセージに絞る</li><li>起承転結＋パターン割り込みで離脱防止</li><li>口語・短文でテンポを作る</li><li>明確なCTAで次の行動へ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Save the Cat!』(脚本の型)</li><li>YouTube Creator Academy</li><li>MrBeast的リテンション設計の解説記事</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="sns投稿文作成 x/instagram等でスクロールを止め、保存・シェアされる短文を書く。 フック1行目の型 スワイプ/カルーセル構成 typefully / buffer（作成・予約) トレンド・フォーマット活用 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">15</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">SNS投稿文作成</h3>
+        <p class="card-overview">X/Instagram等でスクロールを止め、保存・シェアされる短文を書く。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>フック1行目の型</li><li>スワイプ/カルーセル構成</li><li>Typefully / Buffer（作成・予約)</li><li>トレンド・フォーマット活用</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>1行目で手を止めさせるフックを作る</li><li>1投稿1アイデアで明快に</li><li>改行・箇条書きで可読性を上げる</li><li>保存/シェアされる実用価値を入れる</li><li>CTA(フォロー/リンク)で締める</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Typefully公式ブログ</li><li>各プラットフォームのCreator向けガイド</li><li>『Hook Point』(Brendan Kane)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="ホワイトペーパー・資料作成 課題→解決→根拠を論理的に構成し、信頼を勝ち取るb2b資料を作る。 課題提起→解決策→事例→ctaの型 データ・図解の活用 gamma / canva（体裁) 一次調査で独自性 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">16</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">ホワイトペーパー・資料作成</h3>
+        <p class="card-overview">課題→解決→根拠を論理的に構成し、信頼を勝ち取るB2B資料を作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>課題提起→解決策→事例→CTAの型</li><li>データ・図解の活用</li><li>Gamma / Canva（体裁)</li><li>一次調査で独自性</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>読者の課題と意思決定基準を定義</li><li>論理展開(問題→原因→解決→効果)を設計</li><li>データ・図解・事例で裏付け</li><li>専門性と読みやすさを両立</li><li>次アクション(問い合わせ等)へ誘導</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>HubSpot ホワイトペーパー作成ガイド</li><li>『Made to Stick』</li><li>Gamma公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="校正・編集 文章を明快・正確・簡潔に磨き、読み手の負担を最小化する。 hemingway editor（冗長検出) textlint / 文賢（日本語校正) grammarly（英文) 声に出す/寝かせる推敲 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">17</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">校正・編集</h3>
+        <p class="card-overview">文章を明快・正確・簡潔に磨き、読み手の負担を最小化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Hemingway Editor（冗長検出)</li><li>textlint / 文賢（日本語校正)</li><li>Grammarly（英文)</li><li>声に出す/寝かせる推敲</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>まず構成(論理の流れ)を直す</li><li>一文一義・能動態・短文化</li><li>冗長語・重複・曖昧語を削る</li><li>事実・数字・固有名詞を検証</li><li>音読と時間を置いた再読で仕上げ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『日本語の作文技術』(本多勝一)</li><li>『On Writing Well』</li><li>textlint公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="ストーリーテリング ブランドや商品の物語を構築し、記憶と共感を通じてファンを作る。 ヒーローズジャーニー storybrand(顧客=主役)フレーム 3幕構成 感情曲線の設計 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">18</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">ストーリーテリング</h3>
+        <p class="card-overview">ブランドや商品の物語を構築し、記憶と共感を通じてファンを作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ヒーローズジャーニー</li><li>StoryBrand(顧客=主役)フレーム</li><li>3幕構成</li><li>感情曲線の設計</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>顧客を主役、ブランドを案内役に置く</li><li>課題→変化→解決の変容を描く</li><li>具体・五感・葛藤でリアリティを出す</li><li>一貫したメッセージで反復</li><li>各媒体へ物語を展開</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Building a StoryBrand』(Donald Miller)</li><li>『Story』(Robert McKee)</li><li>Pixarのストーリールール</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="多言語翻訳・ローカライズ 単なる翻訳でなく文化・文脈に適応させ、現地市場で自然に響く表現にする。 deepl（高品質機械翻訳) claude/gpt（文脈適応) crowdin / lokalise（管理) ネイティブ監修 ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">19</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">多言語翻訳・ローカライズ</h3>
+        <p class="card-overview">単なる翻訳でなく文化・文脈に適応させ、現地市場で自然に響く表現にする。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>DeepL（高品質機械翻訳)</li><li>Claude/GPT（文脈適応)</li><li>Crowdin / Lokalise（管理)</li><li>ネイティブ監修</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>直訳でなく意図・文化を訳す</li><li>用語集・スタイルガイドを整備</li><li>UI/文字数・日付/通貨形式を現地化</li><li>ネイティブレビューで品質担保</li><li>翻訳メモリで一貫性と効率化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>DeepL公式</li><li>Lokalise公式ブログ</li><li>『Found in Translation』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:24" data-cat="02" data-search="電子書籍/note執筆 専門知識を体系化し、電子書籍やnoteで販売可能なコンテンツ資産にする。 kindle direct publishing note / zenn scrivener / ulysses（執筆) aiで構成＋人手で価値付け ライティング・コンテンツ制作">
+        <header class="card-head">
+          <span class="num">20</span>
+          <span class="cat-chip"><span class="cat-e">✍️</span>ライティング・コンテンツ制作</span>
+        </header>
+        <h3 class="card-title">電子書籍/note執筆</h3>
+        <p class="card-overview">専門知識を体系化し、電子書籍やnoteで販売可能なコンテンツ資産にする。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Kindle Direct Publishing</li><li>note / Zenn</li><li>Scrivener / Ulysses（執筆)</li><li>AIで構成＋人手で価値付け</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>読者の悩みと変化(before→after)を定義</li><li>目次で価値の全体像を設計</li><li>各章1テーマ・実践可能に</li><li>無料部分で価値を証明し有料へ</li><li>レビュー・特典で信頼構築</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Amazon KDP公式</li><li>note公式ガイド</li><li>『Write Useful Books』(Rob Fitzpatrick)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="sns画像制作 canva等でブランド一貫したsns画像を量産し、認知と信頼を積み上げる。 canva（テンプレ・ブランドキット) figma（本格デザイン) adobe express ai画像生成の併用 デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">21</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">SNS画像制作</h3>
+        <p class="card-overview">Canva等でブランド一貫したSNS画像を量産し、認知と信頼を積み上げる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Canva（テンプレ・ブランドキット)</li><li>Figma（本格デザイン)</li><li>Adobe Express</li><li>AI画像生成の併用</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ブランドカラー・フォントを固定化</li><li>テンプレ化して量産・一貫性を担保</li><li>可読性(コントラスト/余白)を最優先</li><li>プラットフォーム別サイズに最適化</li><li>保存・シェアされる情報価値を入れる</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Canva Design School</li><li>『ノンデザイナーズ・デザインブック』</li><li>Figma公式チュートリアル</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="サムネイル・バナーデザイン クリック率を最大化するサムネ・バナーを設計する。視認性と好奇心が鍵。 canva / figma photoshop（切り抜き・合成) 感情表現・大きな文字 a/bテスト(youtube) デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">22</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">サムネイル・バナーデザイン</h3>
+        <p class="card-overview">クリック率を最大化するサムネ・バナーを設計する。視認性と好奇心が鍵。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Canva / Figma</li><li>Photoshop（切り抜き・合成)</li><li>感情表現・大きな文字</li><li>A/Bテスト(YouTube)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>3要素以内・大きな文字で瞬時に伝える</li><li>高コントラストと視線誘導</li><li>表情・矢印・数字で好奇心を喚起</li><li>スマホ縮小時の可読性を確認</li><li>複数案でCTRをA/Bテスト</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Canva Design School</li><li>YouTube Creator Academy</li><li>ThumbnailTest等のA/Bツール解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="スライド・プレゼン資料デザイン 伝わるスライドを設計し、意思決定と行動を引き出す。1スライド1メッセージ。 gamma（ai自動生成) powerpoint / keynote pitch / canva ピラミッド原則で構成 デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">23</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">スライド・プレゼン資料デザイン</h3>
+        <p class="card-overview">伝わるスライドを設計し、意思決定と行動を引き出す。1スライド1メッセージ。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Gamma（AI自動生成)</li><li>PowerPoint / Keynote</li><li>Pitch / Canva</li><li>ピラミッド原則で構成</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>結論先出しのストーリーラインを作る</li><li>1スライド1メッセージに絞る</li><li>図解・グラフで直感的に伝える</li><li>余白・整列・コントラストを整える</li><li>口頭説明とノートを分離</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Slide:ology』(Nancy Duarte)</li><li>Gamma公式</li><li>『パワポ資料作成の基本』系書籍</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="ロゴ・ブランドキット作成 一貫したブランド視覚資産(ロゴ/色/フォント/トーン)を体系化する。 figma（デザインシステム) looka / brandmark（aiロゴ) adobe illustrator カラー理論・タイポグラフィ デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">24</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">ロゴ・ブランドキット作成</h3>
+        <p class="card-overview">一貫したブランド視覚資産(ロゴ/色/フォント/トーン)を体系化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Figma（デザインシステム)</li><li>Looka / Brandmark（AIロゴ)</li><li>Adobe Illustrator</li><li>カラー理論・タイポグラフィ</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ブランドの人格・価値を言語化</li><li>ロゴ(可変・モノクロ対応)を設計</li><li>カラーパレット・フォント階層を定義</li><li>使用ルール(余白/禁止例)を文書化</li><li>全媒体へ一貫適用</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Designing Brand Identity』</li><li>Figma公式</li><li>Coolors（配色ツール)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="動画編集 カット・字幕・音・エフェクトで視聴維持率の高い動画に仕上げる。 davinci resolve（無料・プロ級) adobe premiere pro capcut（手軽・自動字幕) descript（テキスト編集型) デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">25</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">動画編集</h3>
+        <p class="card-overview">カット・字幕・音・エフェクトで視聴維持率の高い動画に仕上げる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>DaVinci Resolve（無料・プロ級)</li><li>Adobe Premiere Pro</li><li>CapCut（手軽・自動字幕)</li><li>Descript（テキスト編集型)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>不要部分を削りテンポを作る</li><li>字幕・テロップで理解と離脱防止</li><li>BGM・効果音で感情を演出</li><li>カラーグレーディングで質感統一</li><li>書き出し設定を媒体最適化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>DaVinci Resolve公式トレーニング(無料)</li><li>CapCut公式チュートリアル</li><li>Premiere Pro Learn</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="ショート動画制作 tiktok/reels/shortsで拡散する縦型短尺動画を企画・制作する。 capcut（テンプレ・トレンド音源) フック→展開→ループ設計 トレンド分析 自動字幕・エフェクト デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">26</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">ショート動画制作</h3>
+        <p class="card-overview">TikTok/Reels/Shortsで拡散する縦型短尺動画を企画・制作する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>CapCut（テンプレ・トレンド音源)</li><li>フック→展開→ループ設計</li><li>トレンド分析</li><li>自動字幕・エフェクト</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>最初の1秒でフックを作る</li><li>1本1メッセージ・15〜30秒</li><li>トレンド音源・フォーマットに乗る</li><li>字幕必須(無音視聴対応)</li><li>最後をループさせ再生数を稼ぐ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>CapCut公式</li><li>TikTok Creative Center</li><li>各プラットフォームのShorts/Reelsガイド</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="ai画像生成の活用 テキストから高品質画像を生成し、制作コストを劇的に下げる。 midjourney（品質最高峰) dall·e / gpt image stable diffusion / comfyui（自由度) adobe firefly（商用安全) デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">27</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">AI画像生成の活用</h3>
+        <p class="card-overview">テキストから高品質画像を生成し、制作コストを劇的に下げる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Midjourney（品質最高峰)</li><li>DALL·E / GPT Image</li><li>Stable Diffusion / ComfyUI（自由度)</li><li>Adobe Firefly（商用安全)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>用途と権利要件(商用可否)を確認</li><li>被写体/画風/構図/光をプロンプト化</li><li>参照画像・シードで一貫性を出す</li><li>反復生成しバリエーション選定</li><li>後処理(補正/合成)で仕上げ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Midjourney公式ドキュメント</li><li>『Prompt』系ギャラリー(PromptHero)</li><li>Adobe Firefly公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="インフォグラフィック作成 複雑な情報を図解して直感的に伝え、シェアされるビジュアルを作る。 canva / piktochart flourish（データ可視化) figma 情報階層・視線誘導 デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">28</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">インフォグラフィック作成</h3>
+        <p class="card-overview">複雑な情報を図解して直感的に伝え、シェアされるビジュアルを作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Canva / Piktochart</li><li>Flourish（データ可視化)</li><li>Figma</li><li>情報階層・視線誘導</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>伝えたい1つの結論を決める</li><li>データを絞り比較・関係を可視化</li><li>視線の流れ(Z/F型)で配置</li><li>アイコン・色で情報を分類</li><li>出典明記と正確性を担保</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Flourish公式</li><li>『Storytelling with Data』</li><li>Piktochart公式ブログ</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="ui/uxモックアップ作成 アプリ/サイトの画面設計を可視化し、開発前に体験を検証する。 figma（業界標準) framer（高機能プロトタイプ) v0 / ai ui生成 ユーザビリティ原則 デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">29</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">UI/UXモックアップ作成</h3>
+        <p class="card-overview">アプリ/サイトの画面設計を可視化し、開発前に体験を検証する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Figma（業界標準)</li><li>Framer（高機能プロトタイプ)</li><li>v0 / AI UI生成</li><li>ユーザビリティ原則</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ユーザーフロー(画面遷移)を設計</li><li>ワイヤーフレームで骨格を作る</li><li>コンポーネント・デザインシステム化</li><li>インタラクティブなプロトタイプで検証</li><li>ユーザーテストで改善</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Figma公式チュートリアル</li><li>『Refactoring UI』</li><li>Laws of UX (lawsofux.com)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:330" data-cat="03" data-search="写真加工・レタッチ 写真を補正・加工し、商品や人物を魅力的に見せる。 adobe lightroom（現像) photoshop（合成・修復) photopea（無料・ブラウザ) ai補正(生成塗りつぶし) デザイン・ビジュアル">
+        <header class="card-head">
+          <span class="num">30</span>
+          <span class="cat-chip"><span class="cat-e">🎨</span>デザイン・ビジュアル</span>
+        </header>
+        <h3 class="card-title">写真加工・レタッチ</h3>
+        <p class="card-overview">写真を補正・加工し、商品や人物を魅力的に見せる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Adobe Lightroom（現像)</li><li>Photoshop（合成・修復)</li><li>Photopea（無料・ブラウザ)</li><li>AI補正(生成塗りつぶし)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>露出・ホワイトバランスを基礎補正</li><li>不要物除去・肌/商品レタッチ</li><li>色調で世界観を統一(プリセット)</li><li>切り抜き・背景合成</li><li>書き出し(用途別解像度)</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Adobe Lightroom公式チュートリアル</li><li>Photopea公式</li><li>PHLEARN(レタッチ教材)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="seo対策・キーワード選定 検索需要を捉え、上位表示で継続的な無料集客を実現する。 ahrefs / semrush google keyword planner / search console 検索意図分析 e-e-a-t強化 マーケティング・集客">
+        <header class="card-head">
+          <span class="num">31</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">SEO対策・キーワード選定</h3>
+        <p class="card-overview">検索需要を捉え、上位表示で継続的な無料集客を実現する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Ahrefs / SEMrush</li><li>Google Keyword Planner / Search Console</li><li>検索意図分析</li><li>E-E-A-T強化</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>キーワードを検索ボリューム×難易度で選定</li><li>検索意図と競合を分析</li><li>トピッククラスタで網羅性を設計</li><li>内部リンク・被リンク・技術SEOを整備</li><li>GSCで順位・CTRを改善</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Ahrefs Academy(無料)</li><li>Google検索セントラル</li><li>Backlinko SEOガイド</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="sns運用・アルゴリズム理解 各snsの仕組みを理解し、継続投稿でフォロワーと影響力を育てる。 各プラットフォームのcreator向け解説 buffer / hootsuite（運用) 分析ダッシュボード エンゲージメント設計 マーケティング・集客">
+        <header class="card-head">
+          <span class="num">32</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">SNS運用・アルゴリズム理解</h3>
+        <p class="card-overview">各SNSの仕組みを理解し、継続投稿でフォロワーと影響力を育てる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>各プラットフォームのCreator向け解説</li><li>Buffer / Hootsuite（運用)</li><li>分析ダッシュボード</li><li>エンゲージメント設計</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>1媒体に集中し勝ち筋を作る</li><li>保存・シェア・滞在を高める設計</li><li>一貫した投稿頻度と型を維持</li><li>分析(伸びた投稿)を横展開</li><li>コメント/DMで関係を深める</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>各SNS公式Creatorガイド</li><li>Buffer Library(無料ブログ)</li><li>Later公式ブログ</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="広告運用 meta/google広告で費用対効果高く見込み客を獲得する。 meta ads manager google ads 計測(pixel/ga4/cv) クリエイティブテスト マーケティング・集客">
+        <header class="card-head">
+          <span class="num">33</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">広告運用</h3>
+        <p class="card-overview">Meta/Google広告で費用対効果高く見込み客を獲得する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Meta Ads Manager</li><li>Google Ads</li><li>計測(Pixel/GA4/CV)</li><li>クリエイティブテスト</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>目的(認知/獲得)とKPIを定義</li><li>ターゲティングと計測を正しく設定</li><li>複数クリエイティブでテスト</li><li>CPA/ROASで配分最適化</li><li>LP・オファーまで一貫改善</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Meta Blueprint(無料認定)</li><li>Google Skillshop</li><li>『無駄なく増やす広告運用』系書籍</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="コンテンツマーケティング戦略 価値あるコンテンツで見込み客を惹きつけ育て、信頼から売上へつなげる。 カスタマージャーニー設計 トピッククラスタ hubspot(crm+cms) リパーパス戦略 マーケティング・集客">
+        <header class="card-head">
+          <span class="num">34</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">コンテンツマーケティング戦略</h3>
+        <p class="card-overview">価値あるコンテンツで見込み客を惹きつけ育て、信頼から売上へつなげる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>カスタマージャーニー設計</li><li>トピッククラスタ</li><li>HubSpot(CRM+CMS)</li><li>リパーパス戦略</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ペルソナと購買段階を定義</li><li>各段階に合うコンテンツを設計</li><li>1コンテンツを多媒体へ再利用</li><li>CTA・リード獲得動線を設置</li><li>データで効果測定し改善</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『They Ask, You Answer』</li><li>HubSpot Academy(無料)</li><li>Content Marketing Institute</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="ランディングページ設計(lpo) 1つのゴールに絞ったlpを設計・改善し、コンバージョン率を最大化する。 ヒーロー→ベネフィット→証拠→ctaの型 hotjar / clarity（ヒートマップ) a/bテスト(vwo等) 高速表示・モバイル最適化 マーケティング・集客">
+        <header class="card-head">
+          <span class="num">35</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">ランディングページ設計(LPO)</h3>
+        <p class="card-overview">1つのゴールに絞ったLPを設計・改善し、コンバージョン率を最大化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ヒーロー→ベネフィット→証拠→CTAの型</li><li>Hotjar / Clarity（ヒートマップ)</li><li>A/Bテスト(VWO等)</li><li>高速表示・モバイル最適化</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>1LP1ゴール・1CTAに絞る</li><li>ファーストビューで価値と行動を提示</li><li>証拠(実績/レビュー/保証)で不安解消</li><li>フォーム項目を最小化</li><li>ヒートマップとA/Bで継続改善</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Making Websites Win』</li><li>Microsoft Clarity(無料)</li><li>Unbounce Conversion Benchmark</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="インフルエンサー・コラボ交渉 影響力を持つ人と組み、信頼を借りて一気にリーチを広げる。 エンゲージメント率で選定 マイクロインフルエンサー活用 明確なブリーフ・成果指標 計測(専用コード/utm) マーケティング・集客">
+        <header class="card-head">
+          <span class="num">36</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">インフルエンサー・コラボ交渉</h3>
+        <p class="card-overview">影響力を持つ人と組み、信頼を借りて一気にリーチを広げる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>エンゲージメント率で選定</li><li>マイクロインフルエンサー活用</li><li>明確なブリーフ・成果指標</li><li>計測(専用コード/UTM)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ブランド適合と実エンゲージメントで選定</li><li>Win-Winの提案(報酬/相互価値)を用意</li><li>目的・NG・成果物を明文化</li><li>専用リンク/コードで効果測定</li><li>長期関係(アンバサダー)へ発展</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>各SNSのCreator Marketplace</li><li>Later Influencer Marketingガイド</li><li>事例ベースのマイクロIF解説記事</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="メルマガ・ステップメール構築 自動配信シナリオで見込み客を教育し、信頼を積んで自動的に成約へ導く。 convertkit / klaviyo ウェルカム/ナーチャリング/セールスの型 セグメント・タグ 自動化フロー マーケティング・集客">
+        <header class="card-head">
+          <span class="num">37</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">メルマガ・ステップメール構築</h3>
+        <p class="card-overview">自動配信シナリオで見込み客を教育し、信頼を積んで自動的に成約へ導く。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ConvertKit / Klaviyo</li><li>ウェルカム/ナーチャリング/セールスの型</li><li>セグメント・タグ</li><li>自動化フロー</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>リード獲得(無料オファー)を設計</li><li>ウェルカム→価値提供→オファーの流れを構築</li><li>行動(開封/クリック)でセグメント分岐</li><li>本命セールスは信頼構築後に</li><li>指標(開封/CV)で最適化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>ConvertKit公式ガイド</li><li>『DotCom Secrets』(ファネル思考)</li><li>Klaviyo Academy</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="コミュニティ運営 discord/line等でファンコミュニティを育て、ltvと口コミを最大化する。 discord / slack / line公式 circle / discourse オンボーディング設計 貢献の可視化・報酬 マーケティング・集客">
+        <header class="card-head">
+          <span class="num">38</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">コミュニティ運営</h3>
+        <p class="card-overview">Discord/LINE等でファンコミュニティを育て、LTVと口コミを最大化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Discord / Slack / LINE公式</li><li>Circle / Discourse</li><li>オンボーディング設計</li><li>貢献の可視化・報酬</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>コミュニティの目的と行動規範を定義</li><li>参加直後の体験(オンボーディング)を設計</li><li>定例イベント・話題提供で活性化</li><li>コアメンバーを巻き込み自走化</li><li>健全性指標(発言/定着)を管理</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『The Art of Community』</li><li>Circle公式ブログ</li><li>commsor等コミュニティ運営解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="ブランディング戦略設計 選ばれる理由を定義し、認知から愛着までのブランド体験を設計する。 ポジショニング設計 ブランドパーパス/バリュー ゴールデンサークル(why) 一貫したトーン&amp;マナー マーケティング・集客">
+        <header class="card-head">
+          <span class="num">39</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">ブランディング戦略設計</h3>
+        <p class="card-overview">選ばれる理由を定義し、認知から愛着までのブランド体験を設計する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ポジショニング設計</li><li>ブランドパーパス/バリュー</li><li>ゴールデンサークル(Why)</li><li>一貫したトーン&amp;マナー</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>市場での独自の立ち位置を定義</li><li>Why(存在意義)を言語化</li><li>ターゲットの心の中の位置(認知)を設計</li><li>全接点で一貫した体験を提供</li><li>時間をかけ資産として蓄積</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Start With Why』(Simon Sinek)</li><li>『Positioning』(Al Ries)</li><li>『This Is Marketing』(Seth Godin)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:4" data-cat="04" data-search="競合分析・市場調査 市場と競合を体系的に調べ、勝てるポジションと機会を見つける。 swot / 4p / ファイブフォース ahrefs / similarweb 顧客インタビュー レビュー分析(voc) マーケティング・集客">
+        <header class="card-head">
+          <span class="num">40</span>
+          <span class="cat-chip"><span class="cat-e">📣</span>マーケティング・集客</span>
+        </header>
+        <h3 class="card-title">競合分析・市場調査</h3>
+        <p class="card-overview">市場と競合を体系的に調べ、勝てるポジションと機会を見つける。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>SWOT / 4P / ファイブフォース</li><li>Ahrefs / SimilarWeb</li><li>顧客インタビュー</li><li>レビュー分析(VoC)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>市場規模・成長性・トレンドを把握</li><li>競合の強み弱み・戦略を分析</li><li>顧客の未解決課題(ギャップ)を発見</li><li>自社の勝てる差別化軸を定義</li><li>定点観測で変化を追う</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『ブルー・オーシャン戦略』</li><li>SimilarWeb / Ahrefs</li><li>『Competing Against Luck』(JTBD)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="商談・クロージング 顧客の課題を引き出し、価値提示から意思決定へ導いて成約する。 spin話法 コンサルティングセールス bant/meddic(見極め) 反論処理 セールス・交渉">
+        <header class="card-head">
+          <span class="num">41</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">商談・クロージング</h3>
+        <p class="card-overview">顧客の課題を引き出し、価値提示から意思決定へ導いて成約する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>SPIN話法</li><li>コンサルティングセールス</li><li>BANT/MEDDIC(見極め)</li><li>反論処理</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ヒアリングで課題と理想を明確化</li><li>課題の影響(コスト)を数値化</li><li>価値をベネフィットで提示</li><li>次のステップを常に合意</li><li>沈黙を恐れず意思決定を促す</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『SPIN Selling』</li><li>『The Challenger Sale』</li><li>『新版 営業の魔法』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="価格交渉・値決め設計 価値に基づく価格を設計し、値引きに頼らず利益を守る交渉をする。 価値ベース価格設定 アンカリング batna(代替案)準備 3段階プライシング セールス・交渉">
+        <header class="card-head">
+          <span class="num">42</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">価格交渉・値決め設計</h3>
+        <p class="card-overview">価値に基づく価格を設計し、値引きに頼らず利益を守る交渉をする。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>価値ベース価格設定</li><li>アンカリング</li><li>BATNA(代替案)準備</li><li>3段階プライシング</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>原価でなく提供価値から価格を設計</li><li>松竹梅で意思決定を誘導</li><li>最初の提示(アンカー)を高めに</li><li>値引きは条件と交換で</li><li>BATNAを持ち強気に臨む</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Never Split the Difference』</li><li>『The Psychology of Price』</li><li>『価格の心理学』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="提案書・見積書作成 課題→解決→費用対効果を明快に示し、決裁を通す提案書を作る。 課題→解決→効果→費用の型 roi提示 proposify / pandadoc 選択肢提示(松竹梅) セールス・交渉">
+        <header class="card-head">
+          <span class="num">43</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">提案書・見積書作成</h3>
+        <p class="card-overview">課題→解決→費用対効果を明快に示し、決裁を通す提案書を作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>課題→解決→効果→費用の型</li><li>ROI提示</li><li>Proposify / PandaDoc</li><li>選択肢提示(松竹梅)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>顧客の課題を相手の言葉で要約</li><li>解決策と期待効果(数値)を提示</li><li>投資対効果(ROI)を明確化</li><li>料金は選択肢で提示し比較容易に</li><li>次アクションと期限を明記</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Proposal Best Practices』(PandaDoc)</li><li>『億を稼ぐ提案書』系書籍</li><li>HubSpot提案書テンプレ</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="カスタマーサクセス設計 顧客の成功を能動的に支援し、解約を防ぎltvを最大化する。 オンボーディング設計 ヘルススコア qbr(定期レビュー) チャーン分析 セールス・交渉">
+        <header class="card-head">
+          <span class="num">44</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">カスタマーサクセス設計</h3>
+        <p class="card-overview">顧客の成功を能動的に支援し、解約を防ぎLTVを最大化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>オンボーディング設計</li><li>ヘルススコア</li><li>QBR(定期レビュー)</li><li>チャーン分析</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>導入直後の成功体験(Aha)を設計</li><li>利用状況でヘルススコアを可視化</li><li>能動的にフォロー・提案</li><li>解約予兆を検知し先回り</li><li>成功事例を横展開・アップセル</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Customer Success』(Gainsight)</li><li>『The Customer Success Economy』</li><li>Gainsight/HubSpot CSブログ</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="リピート・アップセル設計 既存顧客の再購入・単価向上を仕組み化し、収益基盤を安定させる。 ltv設計 クロスセル/アップセル 会員/サブスク化 rfm分析 セールス・交渉">
+        <header class="card-head">
+          <span class="num">45</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">リピート・アップセル設計</h3>
+        <p class="card-overview">既存顧客の再購入・単価向上を仕組み化し、収益基盤を安定させる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>LTV設計</li><li>クロスセル/アップセル</li><li>会員/サブスク化</li><li>RFM分析</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>初回購入後のフォロー体験を設計</li><li>関連商品(クロスセル)を提案</li><li>上位プラン(アップセル)への導線</li><li>継続特典・会員制で離脱防止</li><li>RFMで優良顧客を厚くフォロー</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Subscribed』(Tien Tzuo)</li><li>『The Automatic Customer』</li><li>RFM分析の実務解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="紹介・口コミ設計 満足顧客から紹介と口コミを生み出す仕組みを作り、低コストで新規獲得する。 紹介プログラム設計 nps計測 レビュー依頼の自動化 インセンティブ設計 セールス・交渉">
+        <header class="card-head">
+          <span class="num">46</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">紹介・口コミ設計</h3>
+        <p class="card-overview">満足顧客から紹介と口コミを生み出す仕組みを作り、低コストで新規獲得する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>紹介プログラム設計</li><li>NPS計測</li><li>レビュー依頼の自動化</li><li>インセンティブ設計</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>紹介したくなる体験(期待超え)を作る</li><li>満足のピークで紹介を依頼</li><li>紹介者・被紹介者双方に価値提供</li><li>レビュー依頼を導線に組み込む</li><li>NPSで推奨度を継続測定</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『The Referral Engine』</li><li>NPSの実務ガイド(Bain)</li><li>ReferralCandy等の仕組み解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="オンライン商談 zoom等の非対面で信頼を築き、画面共有と対話で意思決定へ導く。 zoom / google meet 画面共有プレゼン 録画・文字起こし(fireflies等) アジェンダ設計 セールス・交渉">
+        <header class="card-head">
+          <span class="num">47</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">オンライン商談</h3>
+        <p class="card-overview">Zoom等の非対面で信頼を築き、画面共有と対話で意思決定へ導く。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Zoom / Google Meet</li><li>画面共有プレゼン</li><li>録画・文字起こし(Fireflies等)</li><li>アジェンダ設計</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>事前にアジェンダとゴールを共有</li><li>カメラ・照明・音声環境を整える</li><li>一方的説明でなく対話で進める</li><li>画面共有で視覚的に価値提示</li><li>要点と次アクションを即共有</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Zoom公式Tips</li><li>『Virtual Selling』(Jeb Blount)</li><li>Gong等の商談分析インサイト</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="オブジェクション対応 断り・懸念を歓迎し、傾聴と再提示で信頼を保ったまま前進させる。 傾聴→共感→再提示の型 laer法 事前の反論想定 証拠での払拭 セールス・交渉">
+        <header class="card-head">
+          <span class="num">48</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">オブジェクション対応</h3>
+        <p class="card-overview">断り・懸念を歓迎し、傾聴と再提示で信頼を保ったまま前進させる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>傾聴→共感→再提示の型</li><li>LAER法</li><li>事前の反論想定</li><li>証拠での払拭</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>反論を歓迎し本音を引き出す</li><li>まず共感し否定しない</li><li>懸念の真因を質問で特定</li><li>証拠・事例で不安を払拭</li><li>小さな合意を積み重ねる</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Objections』(Jeb Blount)</li><li>『Never Split the Difference』</li><li>Sandler反論処理の解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="契約書レビュー基礎 営業・実務者が最低限おさえるべき契約リスクを見抜く基礎力。 リスク条項の把握 ai契約レビュー(補助) 弁護士エスカレ基準 チェックリスト運用 セールス・交渉">
+        <header class="card-head">
+          <span class="num">49</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">契約書レビュー基礎</h3>
+        <p class="card-overview">営業・実務者が最低限おさえるべき契約リスクを見抜く基礎力。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>リスク条項の把握</li><li>AI契約レビュー(補助)</li><li>弁護士エスカレ基準</li><li>チェックリスト運用</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>当事者・目的・対価・期間を確認</li><li>責任・賠償・解除・秘密保持を精査</li><li>不利/曖昧な条項に印を付ける</li><li>重要案件は専門家へエスカレ</li><li>自社標準ひな形を整備</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>経産省・中企庁の契約ひな形</li><li>『ビジネス法務の基礎』系書籍</li><li>法務省 契約書チェック資料</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:200" data-cat="05" data-search="パートナーシップ構築 他社・個人と協業し、互いの資産を掛け合わせて成長を加速する。 アライアンス設計 win-win条件設計 レベニューシェア 信頼構築(ギブ先行) セールス・交渉">
+        <header class="card-head">
+          <span class="num">50</span>
+          <span class="cat-chip"><span class="cat-e">🤝</span>セールス・交渉</span>
+        </header>
+        <h3 class="card-title">パートナーシップ構築</h3>
+        <p class="card-overview">他社・個人と協業し、互いの資産を掛け合わせて成長を加速する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>アライアンス設計</li><li>Win-Win条件設計</li><li>レベニューシェア</li><li>信頼構築(ギブ先行)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>相互補完できる相手を見極める</li><li>双方のメリットを明確に設計</li><li>小さな協業から信頼を積む</li><li>役割・収益分配を契約化</li><li>定期見直しで関係を強化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Give and Take』(Adam Grant)</li><li>『Never Eat Alone』</li><li>アライアンス実務の解説記事</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="webサイト制作 html/cssやノーコードで、目的を達成するwebサイトを制作・公開する。 html/css/javascript framer / webflow（ノーコード) next.js / astro vercel / netlify（公開) プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">51</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">Webサイト制作</h3>
+        <p class="card-overview">HTML/CSSやノーコードで、目的を達成するWebサイトを制作・公開する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>HTML/CSS/JavaScript</li><li>Framer / Webflow（ノーコード)</li><li>Next.js / Astro</li><li>Vercel / Netlify（公開)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>目的とターゲットから構成を設計</li><li>レスポンシブ・アクセシビリティを担保</li><li>高速表示(画像最適化等)を重視</li><li>フォーム/計測を組み込む</li><li>独自ドメインで公開・運用</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>MDN Web Docs</li><li>freeCodeCamp</li><li>Webflow University / Framer公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="アプリ開発基礎 モバイル/webアプリを作る基礎。クロスプラットフォームで効率開発。 react native / expo flutter swift / kotlin(ネイティブ) flutterflow(ノーコード) プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">52</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">アプリ開発基礎</h3>
+        <p class="card-overview">モバイル/Webアプリを作る基礎。クロスプラットフォームで効率開発。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>React Native / Expo</li><li>Flutter</li><li>Swift / Kotlin(ネイティブ)</li><li>FlutterFlow(ノーコード)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>要件とMVP機能を絞る</li><li>UI設計→状態管理→データ連携</li><li>API/DBと接続</li><li>実機テスト・ストア審査対応</li><li>計測とアップデート運用</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>React Native公式 / Expo Docs</li><li>Flutter公式Codelab</li><li>『はじめてのアプリ開発』系</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="データベース設計基礎 データを正しく構造化し、拡張性と整合性のあるdbを設計する。 postgresql / mysql supabase / firebase 正規化・er図 インデックス設計 プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">53</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">データベース設計基礎</h3>
+        <p class="card-overview">データを正しく構造化し、拡張性と整合性のあるDBを設計する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>PostgreSQL / MySQL</li><li>Supabase / Firebase</li><li>正規化・ER図</li><li>インデックス設計</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>扱うデータと関係(ER図)を洗い出す</li><li>正規化で冗長排除、必要に応じ非正規化</li><li>主キー/外部キー/制約を設定</li><li>クエリに合わせインデックス設計</li><li>バックアップ・マイグレーション運用</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『SQLアンチパターン』</li><li>Supabase公式ドキュメント</li><li>PostgreSQL公式チュートリアル</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="業務システム構築(notion/airtable) ノーコードdbで社内業務システムを素早く構築し、運用を効率化する。 notion（ドキュメント+db) airtable（関係db+自動化) coda 連携(zapier/make) プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">54</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">業務システム構築(Notion/Airtable)</h3>
+        <p class="card-overview">ノーコードDBで社内業務システムを素早く構築し、運用を効率化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Notion（ドキュメント+DB)</li><li>Airtable（関係DB+自動化)</li><li>Coda</li><li>連携(Zapier/Make)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>業務フローとデータ項目を整理</li><li>テーブル(DB)とリレーションを設計</li><li>ビュー(カンバン/カレンダー)で運用</li><li>自動化・通知を組む</li><li>権限・テンプレで属人化を防ぐ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Notion公式テンプレ集</li><li>Airtable Universe</li><li>Coda公式ガイド</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="ボット開発 slack/discord/line botで通知・自動応答・業務連携を実装する。 slack bolt / discord.js line messaging api webhook サーバレス(cloud functions) プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">55</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">ボット開発</h3>
+        <p class="card-overview">Slack/Discord/LINE botで通知・自動応答・業務連携を実装する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Slack Bolt / Discord.js</li><li>LINE Messaging API</li><li>Webhook</li><li>サーバレス(Cloud Functions)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>解決する業務(通知/応答/操作)を定義</li><li>各プラットフォームのAPI/権限を設定</li><li>イベント受信→処理→応答を実装</li><li>外部API/DBと連携</li><li>サーバレスで低コスト運用</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Slack API公式(Bolt)</li><li>discord.js Guide</li><li>LINE Developers公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="簡易ecサイト構築 shopify/base等で自分の店を素早く立ち上げ、オンライン販売を始める。 shopify（本格・拡張性) base / stores（手軽) stripe（決済) 在庫・配送設定 プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">56</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">簡易ECサイト構築</h3>
+        <p class="card-overview">Shopify/BASE等で自分の店を素早く立ち上げ、オンライン販売を始める。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Shopify（本格・拡張性)</li><li>BASE / STORES（手軽)</li><li>Stripe（決済)</li><li>在庫・配送設定</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>商品・価格・配送ポリシーを整理</li><li>テーマ選定とブランド反映</li><li>決済・税・送料を設定</li><li>商品ページ(写真/説明)を最適化</li><li>計測・レビュー・リピート施策</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Shopify公式ヘルプ</li><li>BASE公式ガイド</li><li>Stripe Docs</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="git・バージョン管理基礎 変更履歴を管理し、安全に開発・共同作業する基礎スキル。 git github / gitlab ブランチ戦略 pull request/レビュー プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">57</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">Git・バージョン管理基礎</h3>
+        <p class="card-overview">変更履歴を管理し、安全に開発・共同作業する基礎スキル。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Git</li><li>GitHub / GitLab</li><li>ブランチ戦略</li><li>Pull Request/レビュー</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>add→commit→pushの基本を習得</li><li>ブランチで機能単位に開発</li><li>わかりやすいコミットメッセージ</li><li>PRでレビュー・マージ</li><li>コンフリクト解消と巻き戻し</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Pro Git(無料書籍)</li><li>GitHub Skills</li><li>『わかばちゃんと学ぶGit』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="デバッグ・問題解決思考 エラーの原因を体系的に切り分け、確実に解決する思考法。 二分探索デバッグ ログ/ブレークポイント 最小再現(mre) エラーメッセージ精読 プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">58</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">デバッグ・問題解決思考</h3>
+        <p class="card-overview">エラーの原因を体系的に切り分け、確実に解決する思考法。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>二分探索デバッグ</li><li>ログ/ブレークポイント</li><li>最小再現(MRE)</li><li>エラーメッセージ精読</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>エラーメッセージ・スタックを正確に読む</li><li>再現条件を最小化(MRE)</li><li>仮説→検証を一つずつ</li><li>二分探索で原因範囲を狭める</li><li>根本原因を修正し再発防止</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『リーダブルコード』</li><li>『Debugging』(David Agans)</li><li>各言語の公式デバッガドキュメント</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="スクレイピングスクリプト作成(python) pythonで実務的な収集スクリプトを書き、データ取得を自動化する。 requests + beautifulsoup playwright(動的サイト) pandas(整形) スケジューラ(cron) プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">59</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">スクレイピングスクリプト作成(Python)</h3>
+        <p class="card-overview">Pythonで実務的な収集スクリプトを書き、データ取得を自動化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>requests + BeautifulSoup</li><li>Playwright(動的サイト)</li><li>pandas(整形)</li><li>スケジューラ(cron)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>対象の規約・法令を確認</li><li>HTTPリクエストでHTML取得</li><li>要素抽出→データ構造化</li><li>例外処理・遅延・リトライ</li><li>保存・定期実行を自動化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Pythonクローリング&amp;スクレイピング』</li><li>Real Python スクレイピング記事</li><li>Playwright Python Docs</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:222" data-cat="06" data-search="apiドキュメント読解・実装 初見のapiドキュメントを素早く読み解き、正しく実装する力。 openapi/swagger postman 認証(oauth/apiキー) sdk活用 プログラミング・ノーコード開発">
+        <header class="card-head">
+          <span class="num">60</span>
+          <span class="cat-chip"><span class="cat-e">💻</span>プログラミング・ノーコード開発</span>
+        </header>
+        <h3 class="card-title">APIドキュメント読解・実装</h3>
+        <p class="card-overview">初見のAPIドキュメントを素早く読み解き、正しく実装する力。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>OpenAPI/Swagger</li><li>Postman</li><li>認証(OAuth/APIキー)</li><li>SDK活用</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>認証方式とベースURLを把握</li><li>必要エンドポイントと必須パラメータを特定</li><li>Postmanで単発検証</li><li>レスポンス構造をコードに反映</li><li>エラー/レート制限を実装</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>各サービスのAPI Reference</li><li>Postman Learning Center</li><li>『Web API: The Good Parts』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="excel/スプレッドシート活用 関数・ピボット・自動化で表計算を武器にし、分析と業務効率を上げる。 excel / google sheets xlookup/query/filter ピボットテーブル gas/マクロ自動化 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">61</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">Excel/スプレッドシート活用</h3>
+        <p class="card-overview">関数・ピボット・自動化で表計算を武器にし、分析と業務効率を上げる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Excel / Google Sheets</li><li>XLOOKUP/QUERY/FILTER</li><li>ピボットテーブル</li><li>GAS/マクロ自動化</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>データを整形(1行1レコード)する</li><li>主要関数(検索/集計/条件)を習得</li><li>ピボットで多角集計</li><li>ダッシュボード化・可視化</li><li>マクロ/GASで反復作業を自動化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>ExcelJet(関数逆引き)</li><li>Google Sheets公式ヘルプ</li><li>『関数×ピボット』系書籍</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="データ可視化 データを適切なグラフで可視化し、意思決定を促す。 looker studio / power bi / tableau flourish observable plot / d3 グラフ選択の原則 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">62</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">データ可視化</h3>
+        <p class="card-overview">データを適切なグラフで可視化し、意思決定を促す。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Looker Studio / Power BI / Tableau</li><li>Flourish</li><li>Observable Plot / D3</li><li>グラフ選択の原則</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>伝えたい問い(比較/推移/割合)を定義</li><li>データに合うグラフ種を選ぶ</li><li>色・軸・ラベルで誤読を防ぐ</li><li>不要な装飾を削ぎ本質を強調</li><li>ダッシュボードで継続監視</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Storytelling with Data』</li><li>Looker Studio / Power BI公式</li><li>Financial Times Visual Vocabulary</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="統計基礎 相関・分布・仮説検定などの基礎で、データから正しく判断する。 記述統計/推測統計 相関≠因果 仮説検定・p値 信頼区間 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">63</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">統計基礎</h3>
+        <p class="card-overview">相関・分布・仮説検定などの基礎で、データから正しく判断する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>記述統計/推測統計</li><li>相関≠因果</li><li>仮説検定・p値</li><li>信頼区間</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>データの分布・外れ値を確認</li><li>平均だけでなくばらつきを見る</li><li>相関と因果を混同しない</li><li>仮説検定で有意差を確認</li><li>効果量・信頼区間で解釈</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『統計学が最強の学問である』</li><li>Khan Academy Statistics</li><li>『完全独習 統計学入門』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="アンケート設計・分析 偏りのないアンケートを設計し、示唆あるデータを得て分析する。 google forms / typeform 質問設計(バイアス回避) 尺度(リッカート) クロス集計 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">64</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">アンケート設計・分析</h3>
+        <p class="card-overview">偏りのないアンケートを設計し、示唆あるデータを得て分析する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Google Forms / Typeform</li><li>質問設計(バイアス回避)</li><li>尺度(リッカート)</li><li>クロス集計</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>調べたい仮説と指標を先に決める</li><li>誘導/二重質問を避ける</li><li>選択肢を網羅的・排他的に</li><li>サンプルの偏りに注意</li><li>クロス集計で示唆を抽出</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『アンケート調査の進め方』</li><li>Qualtrics調査設計ガイド</li><li>Typeform公式Tips</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="競合・市場データ収集 公開情報から競合と市場のデータを体系収集し、戦略に活かす。 similarweb / ahrefs 公開資料(ir/統計) googleアラート レビュー/sns分析 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">65</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">競合・市場データ収集</h3>
+        <p class="card-overview">公開情報から競合と市場のデータを体系収集し、戦略に活かす。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>SimilarWeb / Ahrefs</li><li>公開資料(IR/統計)</li><li>Googleアラート</li><li>レビュー/SNS分析</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>調査目的と必要データを定義</li><li>一次(公式)・二次(統計)情報を収集</li><li>定点観測の仕組みを作る</li><li>定量+定性で立体化</li><li>洞察を戦略へ翻訳</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>SimilarWeb</li><li>政府統計(e-Stat等)</li><li>業界レポート・IR資料</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="kpi設計・ダッシュボード 目標を測る指標を設計し、リアルタイムで進捗を可視化する。 kgi→kpiツリー north star metric looker studio / power bi 先行/遅行指標 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">66</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">KPI設計・ダッシュボード</h3>
+        <p class="card-overview">目標を測る指標を設計し、リアルタイムで進捗を可視化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>KGI→KPIツリー</li><li>North Star Metric</li><li>Looker Studio / Power BI</li><li>先行/遅行指標</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>最終目標(KGI)を分解しKPI化</li><li>行動できる先行指標を選ぶ</li><li>データソースを接続し自動更新</li><li>閾値・アラートを設定</li><li>定例で振り返り改善</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Measure What Matters』(OKR)</li><li>Amplitude/Mixpanelの指標設計記事</li><li>Looker Studio公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="a/bテスト設計 施策を科学的に検証し、感覚でなくデータで改善判断する。 google optimize後継/vwo/optimizely 仮説設計 有意差・サンプルサイズ 1変数検証 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">67</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">A/Bテスト設計</h3>
+        <p class="card-overview">施策を科学的に検証し、感覚でなくデータで改善判断する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Google Optimize後継/VWO/Optimizely</li><li>仮説設計</li><li>有意差・サンプルサイズ</li><li>1変数検証</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>明確な仮説と評価指標を立てる</li><li>1要素だけ変えて比較</li><li>必要サンプル数と期間を事前計算</li><li>有意差が出るまで結論を急がない</li><li>勝ちパターンを横展開</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Trustworthy Online Controlled Experiments』</li><li>VWO/Optimizely公式ガイド</li><li>Evan Miller&#x27;s A/B test tools</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="ユーザーインタビュー・定性分析 顧客の本音と行動を深掘りし、数字に出ない洞察を得る。 デプスインタビュー jtbd(片付けたい用事) 親和図法 質的コーディング データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">68</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">ユーザーインタビュー・定性分析</h3>
+        <p class="card-overview">顧客の本音と行動を深掘りし、数字に出ない洞察を得る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>デプスインタビュー</li><li>JTBD(片付けたい用事)</li><li>親和図法</li><li>質的コーディング</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>解決したい問いを定義</li><li>誘導せず行動と理由を深掘り</li><li>『なぜ』を繰り返し本質へ</li><li>発言を付箋化しパターン抽出</li><li>インサイトを施策へ翻訳</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『The Mom Test』(Rob Fitzpatrick)</li><li>『Interviewing Users』(Steve Portigal)</li><li>JTBD解説(Clayton Christensen)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="トレンド予測・時系列分析 過去データから傾向・季節性を読み、将来を予測する。 移動平均/指数平滑 arima / prophet 季節調整 googleトレンド データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">69</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">トレンド予測・時系列分析</h3>
+        <p class="card-overview">過去データから傾向・季節性を読み、将来を予測する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>移動平均/指数平滑</li><li>ARIMA / Prophet</li><li>季節調整</li><li>Googleトレンド</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>データの傾向・季節性・周期を可視化</li><li>移動平均でノイズを除去</li><li>Prophet等でモデル化・予測</li><li>予測区間で不確実性を示す</li><li>実績と比べ継続的に補正</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>Meta Prophet公式</li><li>『時系列分析』(沖本竜義)</li><li>Google Trends</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:158" data-cat="07" data-search="リサーチ結果のレポーティング 調査結果を意思決定者に伝わる形へ構造化して報告する。 ピラミッド原則 エグゼクティブサマリ データ可視化 so what?思考 データ分析・リサーチ">
+        <header class="card-head">
+          <span class="num">70</span>
+          <span class="cat-chip"><span class="cat-e">📊</span>データ分析・リサーチ</span>
+        </header>
+        <h3 class="card-title">リサーチ結果のレポーティング</h3>
+        <p class="card-overview">調査結果を意思決定者に伝わる形へ構造化して報告する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ピラミッド原則</li><li>エグゼクティブサマリ</li><li>データ可視化</li><li>So What?思考</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>結論(So What)を最初に述べる</li><li>根拠をMECEに構造化</li><li>1メッセージ1ビジュアル</li><li>示唆と推奨アクションを明示</li><li>付録に詳細データを退避</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『考える技術・書く技術』(Barbara Minto)</li><li>『Storytelling with Data』</li><li>McKinsey流レポート解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="確定申告・青色申告 個人事業主が正しく申告し、青色特典で節税する基礎知識。 freee / マネーフォワード / 弥生 e-tax 青色申告特別控除 電子帳簿保存 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">71</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">確定申告・青色申告</h3>
+        <p class="card-overview">個人事業主が正しく申告し、青色特典で節税する基礎知識。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>freee / マネーフォワード / 弥生</li><li>e-Tax</li><li>青色申告特別控除</li><li>電子帳簿保存</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>開業届・青色申告承認申請を提出</li><li>会計ソフトで日々記帳</li><li>経費区分を正しく仕訳</li><li>控除(65万円等)を最大活用</li><li>e-Taxで期限内申告</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>国税庁 確定申告特集</li><li>freee/マネフォ公式ガイド</li><li>『フリーランス税金入門』系書籍</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="財務諸表の読み方 pl/bs/cfを読み、事業とお金の状態を数字で把握する。 損益計算書(pl) 貸借対照表(bs) キャッシュフロー計算書 経営分析指標 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">72</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">財務諸表の読み方</h3>
+        <p class="card-overview">PL/BS/CFを読み、事業とお金の状態を数字で把握する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>損益計算書(PL)</li><li>貸借対照表(BS)</li><li>キャッシュフロー計算書</li><li>経営分析指標</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>PLで収益構造(粗利/営業利益)を読む</li><li>BSで資産・負債・純資産の健全性を見る</li><li>CFで現金の流れを追う</li><li>比率(自己資本比率/ROE等)で分析</li><li>時系列・同業比較で評価</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『財務3表一体理解法』(國貞克則)</li><li>『会計の地図』</li><li>『武器としての会計思考力』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="キャッシュフロー管理 手元資金の流れを管理し、黒字倒産を防ぎ経営を安定させる。 資金繰り表 入出金予測 運転資金管理 会計ソフト連携 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">73</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">キャッシュフロー管理</h3>
+        <p class="card-overview">手元資金の流れを管理し、黒字倒産を防ぎ経営を安定させる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>資金繰り表</li><li>入出金予測</li><li>運転資金管理</li><li>会計ソフト連携</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>月次の入出金予定を一覧化</li><li>最低必要現金(バッファ)を確保</li><li>売掛回収・買掛支払サイトを管理</li><li>資金ショート予兆を早期検知</li><li>予測と実績のズレを補正</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>中小企業庁 資金繰り表テンプレ</li><li>freee資金繰りガイド</li><li>『社長のための資金繰り』系</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="経費管理・領収書整理 経費を正しく記録・保存し、節税と会計精度を両立する。 freee / マネーフォワード レシート撮影ocr 電子帳簿保存法対応 事業/家事按分 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">74</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">経費管理・領収書整理</h3>
+        <p class="card-overview">経費を正しく記録・保存し、節税と会計精度を両立する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>freee / マネーフォワード</li><li>レシート撮影OCR</li><li>電子帳簿保存法対応</li><li>事業/家事按分</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>事業関連経費の区分を理解</li><li>レシートは即撮影・電子保存</li><li>勘定科目を正しく仕訳</li><li>家事按分を合理的基準で設定</li><li>月次で締めて残高照合</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>国税庁 電子帳簿保存法特設サイト</li><li>freee/マネフォ経費ガイド</li><li>『経費で落とす』系書籍</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="見積書・請求書作成 正確で信頼される見積・請求書を作り、入金までを管理する。 freee / マネーフォワード / misoca インボイス制度対応 入金消込 支払条件明記 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">75</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">見積書・請求書作成</h3>
+        <p class="card-overview">正確で信頼される見積・請求書を作り、入金までを管理する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>freee / マネーフォワード / Misoca</li><li>インボイス制度対応</li><li>入金消込</li><li>支払条件明記</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>必要項目(登録番号/税率等)を網羅</li><li>インボイス要件を満たす</li><li>支払期限・振込先を明記</li><li>発行・送付・保存を電子化</li><li>入金消込と督促を管理</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>国税庁 インボイス制度特設サイト</li><li>Misoca/freee公式ガイド</li><li>請求書テンプレート集</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="資金調達基礎 融資・出資・クラファン等の選択肢を理解し、必要資金を確保する。 日本政策金融公庫(創業融資) 補助金・助成金 クラウドファンディング エクイティ(vc/エンジェル) 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">76</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">資金調達基礎</h3>
+        <p class="card-overview">融資・出資・クラファン等の選択肢を理解し、必要資金を確保する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>日本政策金融公庫(創業融資)</li><li>補助金・助成金</li><li>クラウドファンディング</li><li>エクイティ(VC/エンジェル)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>必要額と使途を事業計画で明確化</li><li>返済/非返済の資金性質を理解</li><li>公庫/銀行融資の要件を把握</li><li>補助金・クラファンも検討</li><li>調達コストと希薄化を比較</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>日本政策金融公庫 公式</li><li>J-Net21(中小機構)</li><li>『起業のファイナンス』(磯崎哲也)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="節税の基本知識 合法な範囲で税負担を最適化する基礎知識(脱税でなく節税)。 各種控除の活用 小規模企業共済/ideco 経費計上の適正化 法人化の損益分岐 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">77</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">節税の基本知識</h3>
+        <p class="card-overview">合法な範囲で税負担を最適化する基礎知識(脱税でなく節税)。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>各種控除の活用</li><li>小規模企業共済/iDeCo</li><li>経費計上の適正化</li><li>法人化の損益分岐</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>使える所得控除を漏れなく適用</li><li>共済/iDeCo等で将来準備＋節税</li><li>適正な経費計上で課税所得を圧縮</li><li>消費税(課税/免税)を理解</li><li>大きな判断は税理士に相談</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>国税庁 タックスアンサー</li><li>中小機構 小規模企業共済</li><li>『フリーランスの節税』系書籍</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="価格設定・原価計算 原価を把握し、利益が残る価格を戦略的に設定する。 原価計算(変動/固定費) 損益分岐点 値決め(価値ベース) 粗利率管理 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">78</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">価格設定・原価計算</h3>
+        <p class="card-overview">原価を把握し、利益が残る価格を戦略的に設定する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>原価計算(変動/固定費)</li><li>損益分岐点</li><li>値決め(価値ベース)</li><li>粗利率管理</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>変動費・固定費を分解し原価を把握</li><li>損益分岐点(BEP)を計算</li><li>価値ベースで価格上限を探る</li><li>粗利率目標から下限を設定</li><li>定期的に価格を見直す</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『値決めの教科書』</li><li>『稲盛和夫 値決めは経営』</li><li>損益分岐点分析の実務解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="投資判断基礎(roi) 投資対効果を数値で評価し、限られた資源を最適配分する。 roi / roas 回収期間法 npv/irr 機会費用 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">79</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">投資判断基礎(ROI)</h3>
+        <p class="card-overview">投資対効果を数値で評価し、限られた資源を最適配分する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ROI / ROAS</li><li>回収期間法</li><li>NPV/IRR</li><li>機会費用</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>投資の目的と期待リターンを定義</li><li>ROI=(利益-投資)/投資で評価</li><li>回収期間とリスクを考慮</li><li>複数案をNPV/IRRで比較</li><li>機会費用も判断に含める</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『ファイナンス思考』(朝倉祐介)</li><li>『新版 財務3表』</li><li>Investopedia ROI/NPV解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:42" data-cat="08" data-search="法人化・個人事業の選択 税・社会保険・信用面から法人化のタイミングを判断する。 所得の損益分岐(目安) 社会保険・役員報酬 信用・取引先要件 税理士相談 財務・会計・税務">
+        <header class="card-head">
+          <span class="num">80</span>
+          <span class="cat-chip"><span class="cat-e">💰</span>財務・会計・税務</span>
+        </header>
+        <h3 class="card-title">法人化・個人事業の選択</h3>
+        <p class="card-overview">税・社会保険・信用面から法人化のタイミングを判断する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>所得の損益分岐(目安)</li><li>社会保険・役員報酬</li><li>信用・取引先要件</li><li>税理士相談</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>個人と法人の税負担を試算比較</li><li>目安(利益)ラインで検討</li><li>社会保険コストを織り込む</li><li>信用・採用・取引要件も考慮</li><li>税理士と最終判断</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『個人事業主?株式会社?』系書籍</li><li>freee法人化シミュレーション</li><li>中小機構 起業ガイド</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="契約書の基本構造理解 契約書の型と主要条項を理解し、リスクを見抜く土台を作る。 主要条項の理解 権利義務・責任分界 ai契約レビュー(補助) 標準ひな形の活用 法務・契約">
+        <header class="card-head">
+          <span class="num">81</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">契約書の基本構造理解</h3>
+        <p class="card-overview">契約書の型と主要条項を理解し、リスクを見抜く土台を作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>主要条項の理解</li><li>権利義務・責任分界</li><li>AI契約レビュー(補助)</li><li>標準ひな形の活用</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>前文・定義・本文・一般条項の構造を把握</li><li>対価・納期・責任・解除を精読</li><li>賠償上限・秘密保持を確認</li><li>不利/曖昧条項をマーキング</li><li>重要案件は専門家確認</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>経産省・中企庁 契約ひな形</li><li>『契約書作成の実務と書式』</li><li>法務省 契約関連資料</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="nda(秘密保持契約)チェック 情報漏洩リスクから守るndaの要点を確認できる。 秘密情報の定義範囲 目的外使用禁止 有効期間・存続条項 一方/相互nda 法務・契約">
+        <header class="card-head">
+          <span class="num">82</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">NDA(秘密保持契約)チェック</h3>
+        <p class="card-overview">情報漏洩リスクから守るNDAの要点を確認できる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>秘密情報の定義範囲</li><li>目的外使用禁止</li><li>有効期間・存続条項</li><li>一方/相互NDA</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>秘密情報の定義が広すぎ/狭すぎないか確認</li><li>目的外使用・第三者開示の禁止を確認</li><li>期間と契約後の存続を確認</li><li>返還/破棄義務を確認</li><li>不利な一方的条項に注意</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>経産省 NDAひな形</li><li>『秘密保持契約の実務』</li><li>IPA 営業秘密保護ガイド</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="著作権・肖像権の基礎 コンテンツ制作で侵害を避け、自分の権利も守る基礎知識。 著作権の発生・範囲 引用の要件 肖像権・パブリシティ権 ライセンス(cc等) 法務・契約">
+        <header class="card-head">
+          <span class="num">83</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">著作権・肖像権の基礎</h3>
+        <p class="card-overview">コンテンツ制作で侵害を避け、自分の権利も守る基礎知識。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>著作権の発生・範囲</li><li>引用の要件</li><li>肖像権・パブリシティ権</li><li>ライセンス(CC等)</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>著作物は創作時に自動発生と理解</li><li>引用は要件(主従/出典)を満たす</li><li>人物写真は肖像権・同意を確認</li><li>素材はライセンス条件を遵守</li><li>AI生成物の権利にも留意</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>文化庁 著作権テキスト</li><li>クリエイティブ・コモンズ・ジャパン</li><li>『インターネットと著作権』系</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="特商法・景表法の基礎 広告表現の法規制を理解し、違反リスクを避ける。 景品表示法(優良/有利誤認) 特定商取引法表記 ステマ規制 医薬品等の表現規制 法務・契約">
+        <header class="card-head">
+          <span class="num">84</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">特商法・景表法の基礎</h3>
+        <p class="card-overview">広告表現の法規制を理解し、違反リスクを避ける。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>景品表示法(優良/有利誤認)</li><li>特定商取引法表記</li><li>ステマ規制</li><li>医薬品等の表現規制</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>誇大・優良誤認表現を避ける</li><li>根拠なき『No.1』『必ず』を使わない</li><li>特商法の表記義務を満たす</li><li>ステマ規制(広告明示)に対応</li><li>業界別規制(薬機法等)を確認</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>消費者庁 景品表示法ガイド</li><li>消費者庁 特定商取引法ガイド</li><li>消費者庁 ステマ規制解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="個人情報保護 個人情報を適法に扱い、プライバシーポリシーを整備する。 個人情報保護法 プライバシーポリシー作成 同意・利用目的の明示 安全管理措置 法務・契約">
+        <header class="card-head">
+          <span class="num">85</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">個人情報保護</h3>
+        <p class="card-overview">個人情報を適法に扱い、プライバシーポリシーを整備する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>個人情報保護法</li><li>プライバシーポリシー作成</li><li>同意・利用目的の明示</li><li>安全管理措置</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>取得する個人情報と利用目的を特定</li><li>プライバシーポリシーを整備・公開</li><li>取得時に目的を明示し同意取得</li><li>第三者提供・委託のルールを守る</li><li>漏洩対策と体制を整備</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>個人情報保護委員会(PPC)公式</li><li>PPC プライバシーポリシー雛形解説</li><li>GDPR概要(海外対応時)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="フリーランス保護法の理解 取引の適正化を図る新法を理解し、自分の立場を守る。 取引条件の明示義務 報酬支払期日 禁止行為(買いたたき等) 相談窓口 法務・契約">
+        <header class="card-head">
+          <span class="num">86</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">フリーランス保護法の理解</h3>
+        <p class="card-overview">取引の適正化を図る新法を理解し、自分の立場を守る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>取引条件の明示義務</li><li>報酬支払期日</li><li>禁止行為(買いたたき等)</li><li>相談窓口</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>業務委託時の条件明示義務を把握</li><li>報酬支払期日(60日以内等)を確認</li><li>不当な減額/やり直し等の禁止を理解</li><li>ハラスメント防止措置を確認</li><li>トラブル時の相談窓口を把握</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>公正取引委員会 フリーランス法特設</li><li>中企庁 下請ガイドライン</li><li>フリーランス・トラブル110番</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="商標登録の基礎 ブランド名・ロゴを商標で守り、模倣・トラブルを防ぐ。 j-platpat(検索) 区分(指定商品/役務) 出願手続 早期審査 法務・契約">
+        <header class="card-head">
+          <span class="num">87</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">商標登録の基礎</h3>
+        <p class="card-overview">ブランド名・ロゴを商標で守り、模倣・トラブルを防ぐ。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>J-PlatPat(検索)</li><li>区分(指定商品/役務)</li><li>出願手続</li><li>早期審査</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>使用予定の名称/ロゴを決める</li><li>J-PlatPatで先行商標を調査</li><li>適切な区分を選定</li><li>特許庁へ出願(電子/書面)</li><li>登録後の更新・監視</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>特許庁 商標制度ガイド</li><li>J-PlatPat(無料検索)</li><li>『商標の基本』系書籍</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="トラブル対応・クレーム処理 顧客トラブルを誠実かつ的確に処理し、信頼を守る/回復する。 初期対応(傾聴・謝罪) 事実確認・記録 エスカレーション基準 再発防止 法務・契約">
+        <header class="card-head">
+          <span class="num">88</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">トラブル対応・クレーム処理</h3>
+        <p class="card-overview">顧客トラブルを誠実かつ的確に処理し、信頼を守る/回復する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>初期対応(傾聴・謝罪)</li><li>事実確認・記録</li><li>エスカレーション基準</li><li>再発防止</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>まず傾聴し感情に寄り添う</li><li>事実を確認し記録を残す</li><li>対応方針を迅速に決定・提示</li><li>解決後に再発防止策を講じる</li><li>悪質案件は専門家/警察に相談</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『クレーム対応の教科書』系</li><li>消費者庁 相談対応資料</li><li>カスハラ対策ガイドライン(厚労省)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="利用規約作成 サービスの利用規約を整備し、事業者と利用者のルールを明確化する。 利用条件・禁止事項 免責・責任制限 準拠法・管轄 規約変更条項 法務・契約">
+        <header class="card-head">
+          <span class="num">89</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">利用規約作成</h3>
+        <p class="card-overview">サービスの利用規約を整備し、事業者と利用者のルールを明確化する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>利用条件・禁止事項</li><li>免責・責任制限</li><li>準拠法・管轄</li><li>規約変更条項</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>提供サービスと利用条件を明文化</li><li>禁止事項・違反時措置を規定</li><li>免責・責任範囲を適切に設定</li><li>準拠法・裁判管轄を明記</li><li>定期的に見直し・改定</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>経産省 電子商取引準則</li><li>利用規約の雛形解説記事</li><li>消費者契約法の留意点(消費者庁)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:285" data-cat="09" data-search="契約交渉での条件調整 契約条件を有利かつ公正に調整し、良好な関係で合意する。 リスク配分の交渉 代替案(batna) 優先順位づけ win-win設計 法務・契約">
+        <header class="card-head">
+          <span class="num">90</span>
+          <span class="cat-chip"><span class="cat-e">⚖️</span>法務・契約</span>
+        </header>
+        <h3 class="card-title">契約交渉での条件調整</h3>
+        <p class="card-overview">契約条件を有利かつ公正に調整し、良好な関係で合意する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>リスク配分の交渉</li><li>代替案(BATNA)</li><li>優先順位づけ</li><li>Win-Win設計</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>自社の譲れない点/譲れる点を整理</li><li>相手の関心と制約を把握</li><li>リスク条項を交換で調整</li><li>代替案(BATNA)を用意し臨む</li><li>合意内容を正確に文書化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Getting to Yes』(ハーバード交渉術)</li><li>『Never Split the Difference』</li><li>契約交渉の実務ガイド</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="タイムブロッキング 予定表に作業時間を確保し、重要業務を確実に前進させる。 googleカレンダー / motion ディープワーク枠 テーマ別デイ バッファ確保 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">91</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">タイムブロッキング</h3>
+        <p class="card-overview">予定表に作業時間を確保し、重要業務を確実に前進させる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Googleカレンダー / Motion</li><li>ディープワーク枠</li><li>テーマ別デイ</li><li>バッファ確保</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>1日を作業ブロックに分割</li><li>最重要業務を朝の集中枠へ</li><li>会議/雑務をまとめてブロック化</li><li>割り込み用バッファを確保</li><li>終業前に翌日を計画</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Deep Work』(Cal Newport)</li><li>『Time Blocking』解説記事</li><li>Motion / Sunsama公式</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="タスク管理システム構築 信頼できるタスク管理の仕組みで、頭を空にして実行に集中する。 todoist / ticktick notion / things gtd手法 週次レビュー 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">92</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">タスク管理システム構築</h3>
+        <p class="card-overview">信頼できるタスク管理の仕組みで、頭を空にして実行に集中する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Todoist / TickTick</li><li>Notion / Things</li><li>GTD手法</li><li>週次レビュー</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>すべてのタスクを一箇所に集約(収集)</li><li>プロジェクト/次の行動に分解</li><li>優先度・期日・文脈で整理</li><li>毎日/毎週レビューで更新</li><li>実行に集中できる状態を保つ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Getting Things Done』(David Allen)</li><li>Todoist/Notion公式ガイド</li><li>『タスク管理の教科書』系</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="習慣化・ドリル設計 行動を自動化する習慣を設計し、意志力に頼らず継続する。 習慣の4法則(atomic habits) トリガー→行動→報酬 習慣トラッカー 2分ルール 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">93</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">習慣化・ドリル設計</h3>
+        <p class="card-overview">行動を自動化する習慣を設計し、意志力に頼らず継続する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>習慣の4法則(Atomic Habits)</li><li>トリガー→行動→報酬</li><li>習慣トラッカー</li><li>2分ルール</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>既存習慣に新習慣を紐づける(積み重ね)</li><li>行動のハードルを下げる(2分ルール)</li><li>トリガーと環境を設計</li><li>トラッカーで可視化・連続を狙う</li><li>小さな成功を報酬で強化</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Atomic Habits』(James Clear)</li><li>『習慣の力』(Charles Duhigg)</li><li>Fogg行動モデル(BJ Fogg)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="集中力管理 注意資源を管理し、深い集中を作り出す。 ポモドーロ・テクニック ディープワーク 通知遮断/dnd エネルギー管理 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">94</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">集中力管理</h3>
+        <p class="card-overview">注意資源を管理し、深い集中を作り出す。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ポモドーロ・テクニック</li><li>ディープワーク</li><li>通知遮断/DND</li><li>エネルギー管理</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>25分集中+5分休憩のリズムを作る</li><li>通知・スマホを物理的に遠ざける</li><li>集中を要する仕事を高エネルギー時間帯に</li><li>マルチタスクを避け一点集中</li><li>休息と睡眠で回復を確保</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Deep Work』(Cal Newport)</li><li>『Hyperfocus』(Chris Bailey)</li><li>Forest / Freedom等の集中アプリ</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="情報整理・pkm 個人の知識を蓄積・接続し、いつでも引き出せる第二の脳を作る。 obsidian / notion / logseq para / zettelkasten デイリーノート タグ・リンク構造 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">95</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">情報整理・PKM</h3>
+        <p class="card-overview">個人の知識を蓄積・接続し、いつでも引き出せる第二の脳を作る。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>Obsidian / Notion / Logseq</li><li>PARA / Zettelkasten</li><li>デイリーノート</li><li>タグ・リンク構造</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>情報を一箇所に集約するツールを固定</li><li>PARA(領域別)で整理</li><li>メモを相互リンクし知識を接続</li><li>定期的に見直し・要約</li><li>アウトプットで知識を定着</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Building a Second Brain』(Tiago Forte)</li><li>『TAKE NOTES!』(Zettelkasten)</li><li>Obsidian公式・コミュニティ</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="目標設定・逆算思考 ゴールから逆算して計画し、着実に成果へ到達する。 okr smart目標 マイルストーン分解 週次レビュー 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">96</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">目標設定・逆算思考</h3>
+        <p class="card-overview">ゴールから逆算して計画し、着実に成果へ到達する。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>OKR</li><li>SMART目標</li><li>マイルストーン分解</li><li>週次レビュー</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>最終目標を測定可能に定義(SMART/OKR)</li><li>ゴールからマイルストーンへ逆算</li><li>週/日の行動に落とし込む</li><li>進捗を定期レビュー</li><li>状況に応じ軌道修正</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Measure What Matters』(John Doerr)</li><li>『7つの習慣』(終わりを思い描く)</li><li>OKR実践ガイド</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="メンタルマネジメント ストレスと感情を管理し、持続可能に高いパフォーマンスを保つ。 認知行動(cbt)の考え方 マインドフルネス/瞑想 ジャーナリング 睡眠・運動・栄養 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">97</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">メンタルマネジメント</h3>
+        <p class="card-overview">ストレスと感情を管理し、持続可能に高いパフォーマンスを保つ。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>認知行動(CBT)の考え方</li><li>マインドフルネス/瞑想</li><li>ジャーナリング</li><li>睡眠・運動・栄養</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>ストレス要因と反応を客観視</li><li>認知の歪みを捉え直す</li><li>瞑想・呼吸で自律神経を整える</li><li>ジャーナリングで感情を言語化</li><li>睡眠/運動/栄養の土台を守る</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『マインドフルネスストレス低減法』</li><li>『Feeling Good』(David Burns)</li><li>Headspace / Calm</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="学習の仕組み化 インプットをアウトプットへ変換し、学びを成果に直結させる。 アクティブリコール 間隔反復(srs) ファインマン・テクニック 学習ログ 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">98</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">学習の仕組み化</h3>
+        <p class="card-overview">インプットをアウトプットへ変換し、学びを成果に直結させる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>アクティブリコール</li><li>間隔反復(SRS)</li><li>ファインマン・テクニック</li><li>学習ログ</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>目的(何ができるように)を先に決める</li><li>能動想起(思い出す)で記憶を強化</li><li>間隔反復(Anki等)で定着</li><li>人に教える形で理解を検証</li><li>実践・アウトプットで応用力へ</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Make It Stick』</li><li>『超効率勉強法』(メンタリストDaiGo)</li><li>Anki公式 / Justin Sung解説</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="人脈構築・ネットワーキング ギブ先行で信頼関係を築き、機会と協力を引き寄せる。 ギブファースト 弱い紐帯の活用 フォローアップの仕組み コミュニティ参加 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">99</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">人脈構築・ネットワーキング</h3>
+        <p class="card-overview">ギブ先行で信頼関係を築き、機会と協力を引き寄せる。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>ギブファースト</li><li>弱い紐帯の活用</li><li>フォローアップの仕組み</li><li>コミュニティ参加</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>まず相手に価値を与える(ギブ先行)</li><li>広く浅い『弱い紐帯』も大切に</li><li>出会いを記録しフォローアップ</li><li>定期的な近況共有で関係維持</li><li>コミュニティ/イベントで接点拡大</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Give and Take』(Adam Grant)</li><li>『Never Eat Alone』(Keith Ferrazzi)</li><li>『Superconnector』</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+      <article class="card" style="--h:174" data-cat="10" data-search="意思決定フレームワーク活用 フレームワークで判断の質とスピードを高め、後悔を減らす。 可逆/不可逆の判断 メンタルモデル 10-10-10 エイゼンハワー行列 生産性・自己管理">
+        <header class="card-head">
+          <span class="num">100</span>
+          <span class="cat-chip"><span class="cat-e">🚀</span>生産性・自己管理</span>
+        </header>
+        <h3 class="card-title">意思決定フレームワーク活用</h3>
+        <p class="card-overview">フレームワークで判断の質とスピードを高め、後悔を減らす。</p>
+        <details class="card-more">
+          <summary><span class="summary-open">詳しく見る</span><span class="summary-close">閉じる</span></summary>
+          <div class="detail">
+            <div class="block">
+              <h4>🌍 世界最高峰のツール・手法</h4>
+              <ul><li>可逆/不可逆の判断</li><li>メンタルモデル</li><li>10-10-10</li><li>エイゼンハワー行列</li></ul>
+            </div>
+            <div class="block">
+              <h4>🛠 実践ステップ</h4>
+              <ol><li>決定の重要度と可逆性を見極める</li><li>可逆な決定は速く、不可逆は慎重に</li><li>複数のメンタルモデルで多面的に検討</li><li>感情でなく基準で判断</li><li>決定を記録し後で振り返る</li></ol>
+            </div>
+            <div class="block">
+              <h4>📚 厳選リソース</h4>
+              <ul><li>『Thinking, Fast and Slow』(Kahneman)</li><li>『Poor Charlie&#x27;s Almanack』(メンタルモデル)</li><li>『Decisive』(Chip &amp; Dan Heath)</li></ul>
+            </div>
+          </div>
+        </details>
+      </article>
+    </div>
+    <div class="empty" id="empty">該当するスキルが見つかりませんでした。検索語やカテゴリを変えてお試しください。</div>
+  </main>
+
+  <footer>
+    「1項目 = 1フォルダ」で計100フォルダに整理したコレクションのブラウズ版。<br>
+    各リソースで一次情報を確認し、自分の文脈に合わせて活用してください。
+  </footer>
+</div>
+
+<script>
+(function(){
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var input = document.getElementById('q');
+  var countEl = document.getElementById('count-n');
+  var empty = document.getElementById('empty');
+  var activeCat = 'all';
+
+  function apply(){
+    var q = (input.value || '').trim().toLowerCase();
+    var n = 0;
+    cards.forEach(function(c){
+      var okCat = activeCat === 'all' || c.getAttribute('data-cat') === activeCat;
+      var okQ = !q || c.getAttribute('data-search').indexOf(q) !== -1;
+      var show = okCat && okQ;
+      c.classList.toggle('hide', !show);
+      if(show) n++;
+    });
+    countEl.textContent = n;
+    empty.classList.toggle('show', n === 0);
+  }
+
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      activeCat = chip.getAttribute('data-cat');
+      chips.forEach(function(c){
+        var on = c === chip;
+        c.classList.toggle('is-active', on);
+        c.setAttribute('aria-pressed', on ? 'true':'false');
+      });
+      apply();
+    });
+  });
+  input.addEventListener('input', apply);
+  apply();
+})();
+</script>
+
