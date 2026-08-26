@@ -1,0 +1,34 @@
+# 📊 67. A/Bテスト設計
+
+`📊 07_データ分析・リサーチ` ｜ `スキル 67 / 100`
+
+> 施策を科学的に検証し、感覚でなくデータで改善判断する。
+
+<br>
+
+## 🌍 世界最高峰のツール・手法
+- Google Optimize後継/VWO/Optimizely
+- 仮説設計
+- 有意差・サンプルサイズ
+- 1変数検証
+
+## 🛠 実践ステップ
+1. 明確な仮説と評価指標を立てる
+2. 1要素だけ変えて比較
+3. 必要サンプル数と期間を事前計算
+4. 有意差が出るまで結論を急がない
+5. 勝ちパターンを横展開
+
+## 📚 厳選リソース
+- 『Trustworthy Online Controlled Experiments』
+- VWO/Optimizely公式ガイド
+- Evan Miller's A/B test tools
+
+<br>
+
+---
+<div align="center">
+
+[⬆️ カテゴリ一覧](../README.md)　｜　[🏠 全体インデックス](../../README.md)
+
+</div>
